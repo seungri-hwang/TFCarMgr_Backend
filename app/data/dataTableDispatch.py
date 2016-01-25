@@ -3,7 +3,7 @@ import os,sys
 from app.data import dataTableSchema
 from app.module import moduleDao
 
-class DataTableDispatch():
+class DataTableDispatchClass():
     response = {}
 
     def __init__(self, tableName):

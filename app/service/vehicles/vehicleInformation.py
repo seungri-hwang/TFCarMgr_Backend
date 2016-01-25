@@ -20,7 +20,7 @@ class VehicleInformationClass():
                 yield from self.create(requestDict)
             if requestDict['method'] == 'read':
                 yield from self.read(requestDict)
-            if requestDict['method'] == 'put':
+            if requestDict['method'] == 'update':
                 yield from self.update(requestDict)
             if requestDict['method'] == 'delete':
                 yield from self.delete(requestDict)
@@ -38,6 +38,7 @@ class VehicleInformationClass():
     @asyncio.coroutine
     def create(self, requestDict):
         self.response = requestDict
+
         try:
             queryCondition = {
                     'method' : 'create'
@@ -49,15 +50,18 @@ class VehicleInformationClass():
                         }]
                 }
             }
-            self.response = self.dataTableClass.execute(queryCondition)
+            self.response = yield from self.dataTableClass.execute(queryCondition)
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
 
+        return self.response
+
     @asyncio.coroutine
     def read(self, requestDict):
         self.response = requestDict
+
         try :
             queryCondition = {
                     'method' : 'read'
@@ -69,7 +73,7 @@ class VehicleInformationClass():
                         }]
                 }
             }
-            self.response = self.dataTableClass.execute(queryCondition)
+            self.response = yield from self.dataTableClass.execute(queryCondition)
         except :
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -86,6 +90,7 @@ class VehicleInformationClass():
     @asyncio.coroutine
     def delete(self, requestDict):
         self.response = requestDict
+
         try :
             queryCondition = {
                     'method' : 'update'
@@ -96,7 +101,7 @@ class VehicleInformationClass():
                         }]
                 }
             }
-            self.response = self.dataTableClass.execute(queryCondition)
+            self.response = yield from self.dataTableClass.execute(queryCondition)
         except :
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

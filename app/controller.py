@@ -83,7 +83,6 @@ class ControllerClass:
 				serviceClass = statusMileage.StatusMileageClass()
 				serviceResult = yield from serviceClass.execute(requestDict)
 				self.response = serviceResult
-
 			else:
 				self.response = {
 					'isSucceed': False,

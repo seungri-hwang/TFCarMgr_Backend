@@ -20,7 +20,7 @@ class MemberEfficiencyClass():
                 yield from self.create(requestDict)
             if requestDict['method'] == 'read':
                 yield from self.read(requestDict)
-            if requestDict['method'] == 'put':
+            if requestDict['method'] == 'update':
                 yield from self.update(requestDict)
             if requestDict['method'] == 'delete':
                 yield from self.delete(requestDict)
@@ -50,7 +50,7 @@ class MemberEfficiencyClass():
                 }
             }
 
-            self.response = self.dataTableClass.execute(queryCondition)
+            self.response = yield from self.dataTableClass.execute(queryCondition)
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -70,7 +70,7 @@ class MemberEfficiencyClass():
                 }
             }
 
-            self.response = self.dataTableClass.execute(queryCondition)
+            self.response = yield from self.dataTableClass.execute(queryCondition)
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

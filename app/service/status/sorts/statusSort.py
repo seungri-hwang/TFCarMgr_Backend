@@ -7,6 +7,7 @@ class StatusSortClass():
 
     def __init__(self):
         self.response = {}
+        self.dataTableClass = dataTables.DataTableClass('SL_STATS_SORT')
 
     @asyncio.coroutine
     def execute(self, requestDict):
@@ -19,7 +20,7 @@ class StatusSortClass():
                 yield from self.create(requestDict)
             if requestDict['method'] == 'read':
                 yield from self.read(requestDict)
-            if requestDict['method'] == 'put':
+            if requestDict['method'] == 'update':
                 yield from self.update(requestDict)
             if requestDict['method'] == 'delete':
                 yield from self.delete(requestDict)
@@ -31,15 +32,16 @@ class StatusSortClass():
     @asyncio.coroutine
     def search(self, requestDict):
         self.response = {}
+
         try :
-            dataTableClass = dataTables.DataTableClass('SL_STATS_SORT')
             queryCondition = {
                 'method' : 'search',
                 'condition' : {
                 }
             }
+            result = yield from self.dataTableClass.execute(queryCondition)
             self.response['result'] = {
-				'list': dataTableClass.execute(queryCondition)
+				'list': result
 			}
         except :
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -52,14 +54,22 @@ class StatusSortClass():
     def create(self, requestDict):
         self.response = {}
 
+        return self.response
+
     @asyncio.coroutine
     def read(self, requestDict):
         self.response = {}
+
+        return self.response
 
     @asyncio.coroutine
     def update(self, requestDict):
         self.response = {}
 
+        return self.response
+
     @asyncio.coroutine
     def delete(self, requestDict):
         self.response = {}
+
+        return self.response

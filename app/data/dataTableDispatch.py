@@ -85,7 +85,7 @@ class DataTableDispatch():
                         tuple([value for column, valuye in row.items()])
                     ]
 
-                dictResult = yield from daoClass.executemany(query, data);
+                dictResult = yield from daoClass.executemany(query, data)
 
                 if len(dictResult) > 1:
                     if dictResult.get('error'):
@@ -174,7 +174,24 @@ class DataTableDispatch():
 
     @asyncio.coroutine
     def update(self, requestDict):
-        return ""
+        self.response = {}
+
+        try:
+            queryCondition = requestDict('conditions')
+            queryConditionRows = requestDict('rows')
+            service = requestDict.get('service')
+            daoClass = moduleDao.DaoClass()
+            requestUserNo = requestDict.get('MM_ID')
+
+
+
+
+        except:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
+
+        return self.response
 
     @asyncio.coroutine
     def delete(self, requestDict):

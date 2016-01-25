@@ -13,6 +13,24 @@ class MemberLayerMember():
 #====================================================================================================
 
 #====================================================================================================
+class DataStatusSortClass():
+	@asyncio.coroutine
+	def execute(self, requestDict):
+		tableDispatch = dataTableDispatch.DataTableDispatch('SL_STATS_SORT')
+		result = yield from tableDispatch.execute(requestDict)
+		return result
+#====================================================================================================
+
+#====================================================================================================
+class DataStatusTypeClass():
+	@asyncio.coroutine
+	def execute(self, requestDict):
+		tableDispatch = dataTableDispatch.DataTableDispatch('SL_STATS_TYPE')
+		result = yield from tableDispatch.execute(requestDict)
+		return result
+#====================================================================================================
+
+#====================================================================================================
 '''
 class DataBookingFlightCertifiedDocumentClass():
 

@@ -1,31 +1,15 @@
 # -*- coding: utf-8 -*-
-import sys, os
 import asyncio
 from app.data import dataTableDispatch
 
 #====================================================================================================
-class MemberLayerMember():
-	@asyncio.coroutine
-	def execute(self, requestDict):
-		tableDispatch = dataTableDispatch.DataTableDispatch('ML_MEMBER')
-		result = yield from tableDispatch.execute(requestDict)
-		return result
-#====================================================================================================
+class DataTableClass():
+	def __init__(self, tableName):
+		self.tableName = tableName
 
-#====================================================================================================
-class DataStatusSortClass():
 	@asyncio.coroutine
 	def execute(self, requestDict):
-		tableDispatch = dataTableDispatch.DataTableDispatch('SL_STATS_SORT')
-		result = yield from tableDispatch.execute(requestDict)
-		return result
-#====================================================================================================
-
-#====================================================================================================
-class DataStatusTypeClass():
-	@asyncio.coroutine
-	def execute(self, requestDict):
-		tableDispatch = dataTableDispatch.DataTableDispatch('SL_STATS_TYPE')
+		tableDispatch = dataTableDispatch.DataTableDispatchClass(self.tableName)
 		result = yield from tableDispatch.execute(requestDict)
 		return result
 #====================================================================================================

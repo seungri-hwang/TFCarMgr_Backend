@@ -2,7 +2,7 @@ import sys, os
 import asyncio
 from app.data import dataTables
 
-class StatusSortClass():
+class StatusTypeClass():
     response = {}
 
     def __init__(self):
@@ -32,7 +32,7 @@ class StatusSortClass():
     def search(self, requestDict):
         self.response = {}
         try :
-            dataTableClass = dataTables.DataTableClass('SL_STATS_SORT')
+            dataTableClass = dataTables.DataTableClass('SL_STATS_TYPE')
             queryCondition = {
                 'method' : 'search',
                 'condition' : {

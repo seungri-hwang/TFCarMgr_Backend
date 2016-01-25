@@ -1,9 +1,9 @@
 import asyncio
-
+import os,sys
 from app.data import dataTableSchema
 from app.module import moduleDao
 
-class DataTableDispatch():
+class DataTableDispatchClass():
     response = {}
 
     def __init__(self, tableName):
@@ -44,7 +44,7 @@ class DataTableDispatch():
 
         try:
             daoClass = moduleDao.DaoClass()
-            queryCondition = requestDict['condition']
+            queryCondition = requestDict['conditions']
             queryConditionRows = queryCondition.get('rows')
 
             isValid = len(queryConditionRows) > 0
@@ -109,7 +109,70 @@ class DataTableDispatch():
 
     @asyncio.coroutine
     def read(self, requestDict):
-        return ""
+        self.response = requestDict
+        isValid = True
+        errorMessage =''
+        daoClass = moduleDao.DaoClass()
+
+        try:
+            result = {}
+            queryCondition = requestDict.get('conditions', {})
+
+
+            # 필수 값 확인
+            for key in self.SELECT_KEYS:
+                if not queryCondition.get(key):
+                    isValid = False
+                    errorMessage = '%s is required column.' % key
+                    break
+
+            # 요청한 컬럼이 존재하는지 확인
+            for key, value in queryCondition.items():
+                if key not in self.COLUMNS:
+                    isValid = False
+                    errorMessage = 'Unknown column: %s in %s' % (key, self.TABLE_NAME)
+                    break
+
+            # 필수 키 값이나 요청한 칼럼이 없다면 에러메시지 리턴 후 모듈 종료
+            if isValid == False:
+                result = {
+                    'isSucceed':False,
+                    'error':errorMessage
+                }
+                self.response['result'] = result
+                return self.response
+
+
+            # 이후 DB에서 데이터를 read하는 모듈 시작
+            condition = []
+
+            for column in self.COLUMNS:
+                if queryCondition.get(column):
+                    condition.append(u'`%s` = \'%s\'' % (column, queryCondition.get(column)))
+
+
+            query = u'SELECT DISTINCT * FROM %s' % self.TABLE_NAME
+
+            if queryCondition.get('query'):
+                query = queryCondition.get('query')
+
+            print("Query --> " + query)
+
+            # Query 실행
+            queryResult = yield from daoClass.execute(query)
+
+            # 결과값 세팅
+            result = {
+               'isSucceed': True,
+               'list': queryResult
+             }
+            self.response['result'] = result
+        except:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
+
+        return self.response
 
     @asyncio.coroutine
     def update(self, requestDict):

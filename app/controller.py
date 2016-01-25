@@ -1,51 +1,48 @@
+# -*- coding: utf-8 -*-
+
 import asyncio
+import sys,os
+from app.service.members import memberInsert
+
 
 from app.module import moduleDao, moduleHttp
 
-from app.service import userInformation, userJoin, userLogin
 
-class Controller:
-    response = {}
+class ControllerClass:
+	response = {}
 
-    def __init__(self):
-        self.response = {}
+	def __init__(self):
+		self.response = {}
 
-    @asyncio.coroutine
-    def execute(self, requestDict, daoConnection=None, httpConnection=None):
+	@asyncio.coroutine
+	def execute(self, requestDict, daoConnection=None, httpConnection=None):
+		# begin = time.time()
 
-        #Database Access
-        moduleDao.DaoClass.connection = daoConnection
-        moduleDao.DaoClass.connection = httpConnection
+		moduleDao.DaoClass.connection = daoConnection
+		moduleHttp.HttpClass.connection = httpConnection
 
-        try:
+		try:
+			serviceName = requestDict.get('service', '')
+			apiKey = requestDict.get('apiKey', '')
 
-            serviceName = requestDict.get('service')
-            serviceClass = None
+			isAuthorized = True
 
-            if serviceName == 'members.memberInsert':
-                serviceClass = userJoin.UserJoin()
-            elif serviceName == 'members.memberCheckEmail':
-                serviceClass = userJoin.UserJoin()
-            elif serviceName == 'members.memberList':
-                serviceClass = userInformation.UserInformation()
-            elif serviceName == 'members.memberEfficiencyInsert':
-                serviceClass = userInformation.UserInformation()
-            elif serviceName == 'members.memberGet':
-                serviceClass = userInformation.UserInformation()
-            elif serviceName == 'members.memberLogin':
-                serviceClass = userLogin.UserLogin()
+			# 멤버 조인
+			if serviceName == 'members.memberInsert':
+				serviceClass = memberInsert.MemberInsertClass()
 
-            if serviceName is None:
-                serviceResult = serviceClass.execute(requestDict)
-                self.response = serviceResult
-            else:
-                self.response = {
-                    'isSucceed' : False ,
-                    'error' : {
-                        'message' : 'You are not authorized to use this service.'
-                    }
-                }
-        except:
-            print('[Error] >>>> ', 'File Error!')
+				serviceResult = yield from serviceClass.execute(requestDict)
+				self.response = serviceResult
+			else:
+				self.response = {
+					'isSucceed': False,
+					'error': {
+						'message': 'You are not authorized to use this service.'
+					}
+				}
+		except:
+			exc_type, exc_obj, exc_tb = sys.exc_info()
+			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+			print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
 
-        return self.response
+		return self.response

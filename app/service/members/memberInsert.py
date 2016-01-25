@@ -8,6 +8,9 @@ import sys, os
 class MemberInsertClass():
 	response = {}
 
+	TABLE_NAME = "ML_MEMBER"
+
+
 	def __init__(self):
 
 		self.response = {}
@@ -35,7 +38,7 @@ class MemberInsertClass():
 		self.response = requestDict
 
 		try:
-			dataUserMasterClass = dataTables.DataTableClass('ML_MEMBER')
+			dataUserMasterClass = dataTables.DataTableClass(self.TABLE_NAME)
 			conditions = requestDict.get('conditions')
 			userEmail = conditions.get('userEmail').lower()
 			userName = conditions.get('userName')
@@ -49,14 +52,12 @@ class MemberInsertClass():
 					{
 						"MM_ID" : memberID,
 						"MM_USER_EMAIL" : userEmail
-					}
+					},
+				"query": "SELECT DISTINCT * FROM ML_MEMBER WHERE MM_USER_EMAIL = '%s' " % userEmail
 			}
 
 			dataUserMasterClassResult = yield from dataUserMasterClass.execute(queryCondition)
 			userList = dataUserMasterClassResult
-
-
-			print(userList)
 
 			if 0 < len(userList.get('result').get('list')):
 				message = u'-------이미 가입한 회원입니다.'
@@ -65,7 +66,7 @@ class MemberInsertClass():
 					'result': {
 						'isSucceed': False,
 						'error': {
-							'message': message
+						'message': message
 						}
 					}
 				}
@@ -76,12 +77,11 @@ class MemberInsertClass():
 				queryCondition = {
 					"method": "create",
 					"conditions": {
-						"rows": [rows]
+					"rows": [rows]
 					}
 				}
-
-				print(u'---------가입완료')
 				dataUserMasterResult = yield from dataUserMasterClass.execute(queryCondition)
+				print(u'---------가입완료')
 				self.response = dataUserMasterResult
 		except:
 			exc_type, exc_obj, exc_tb = sys.exc_info()

@@ -69,14 +69,16 @@ class DataTableDispatchClass():
             else:
                 #쿼리 생성
                 query = u"""
-                        INSERT INTO %s
-                        (%s)
-                        VALUES (%s)
-                        """ % (
-                            self.TABLE_NAME,
-                            ', '.join([column for column, value in queryConditionRows[0].items()]),
-                            ', '.join(['%s' for column, value in queryConditionRows[0].item()])
-                        )
+                       INSERT INTO %s
+                       (%s)
+                       values (%s)
+                    """ % (
+                    self.TABLE_NAME,
+                   ', '.join([column for column, value in queryConditionRows[0].items()]),
+                   ', '.join(['%s' for column, value in queryConditionRows[0].items()])
+                )
+                print(query)
+
                 data = []
                 for row in queryConditionRows:
                     data += [
@@ -88,15 +90,13 @@ class DataTableDispatchClass():
                 if len(dictResult) > 1:
                     if dictResult.get('error'):
                         result = {
-                            'error' : dictResult.get('error')   ,
-                            'isSucceed' : False
+                            'error': dictResult.get('error'),
+                            'isSucceed': False
                         }
                 else:
                     result = {
                         'isSucceed' : True
                     }
-
-                    #AI로 생성된 키값은 바로 리턴
 
                     if dictResult.get('autoIncrement'):
                         result[self.AUTO_INCREMENT] = dictResult.get('autoIncrement')
@@ -153,10 +153,8 @@ class DataTableDispatchClass():
 
             query = u'SELECT DISTINCT * FROM %s' % self.TABLE_NAME
 
-            if queryCondition.get('query'):
-                query = queryCondition.get('query')
-
-            print("Query --> " + query)
+            if requestDict.get('query'):
+                query = requestDict.get('query')
 
             # Query 실행
             queryResult = yield from daoClass.execute(query)

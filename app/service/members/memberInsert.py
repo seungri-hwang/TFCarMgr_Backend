@@ -9,6 +9,7 @@ class MemberInsertClass():
 	response = {}
 
 	def __init__(self):
+
 		self.response = {}
 		self.keys = []
 
@@ -34,7 +35,7 @@ class MemberInsertClass():
 		self.response = requestDict
 
 		try:
-			dataUserMasterClass = dataTables.DataMemberMasterClass()
+			dataUserMasterClass = dataTables.DataTableClass('ML_MEMBER')
 			conditions = requestDict.get('conditions')
 			userEmail = conditions.get('userEmail').lower()
 			userName = conditions.get('userName')
@@ -50,8 +51,10 @@ class MemberInsertClass():
 						"MM_USER_EMAIL" : userEmail
 					}
 			}
+
 			dataUserMasterClassResult = yield from dataUserMasterClass.execute(queryCondition)
 			userList = dataUserMasterClassResult
+
 
 			print(userList)
 

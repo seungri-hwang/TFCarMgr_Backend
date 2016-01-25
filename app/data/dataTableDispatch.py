@@ -1,5 +1,5 @@
 import asyncio
-
+import os,sys
 from app.data import dataTableSchema
 from app.module import moduleDao
 
@@ -44,7 +44,7 @@ class DataTableDispatch():
 
         try:
             daoClass = moduleDao.DaoClass()
-            queryCondition = requestDict['condition']
+            queryCondition = requestDict['conditions']
             queryConditionRows = queryCondition.get('rows')
 
             isValid = len(queryConditionRows) > 0
@@ -133,7 +133,7 @@ class DataTableDispatch():
                     errorMessage = 'Unknown column: %s in %s' % (key, self.TABLE_NAME)
                     break
 
-            # 필수 키 값이나 요청한 칼럼이 없다면 에러메시지 리턴
+            # 필수 키 값이나 요청한 칼럼이 없다면 에러메시지 리턴 후 모듈 종료
             if isValid == False:
                 result = {
                     'isSucceed':False,
@@ -144,14 +144,28 @@ class DataTableDispatch():
 
 
             # 이후 DB에서 데이터를 read하는 모듈 시작
+            condition = []
+
+            for column in self.COLUMNS:
+                if queryCondition.get(column):
+                    condition.append(u'`%s` = \'%s\'' % (column, queryCondition.get(column)))
 
 
+            query = u'SELECT DISTINCT * FROM %s' % self.TABLE_NAME
 
+            if queryCondition.get('query'):
+                query = queryCondition.get('query')
+
+            print("Query --> " + query)
+
+            # Query 실행
+            queryResult = yield from daoClass.execute(query)
+
+            # 결과값 세팅
             result = {
                'isSucceed': True,
                'list': queryResult
              }
-
             self.response['result'] = result
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()

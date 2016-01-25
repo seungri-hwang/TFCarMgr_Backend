@@ -4,20 +4,13 @@ import asyncio
 from app.data import dataTableDispatch
 
 #====================================================================================================
-class MemberLayerMember():
+class DataTableClass():
+	def __init__(self, tableName):
+		self.tableName = tableName
+
 	@asyncio.coroutine
 	def execute(self, requestDict):
-		tableDispatch = dataTableDispatch.DataTableDispatch('ML_MEMBER')
+		tableDispatch = dataTableDispatch.DataTableDispatch(self.tableName)
 		result = yield from tableDispatch.execute(requestDict)
 		return result
-#====================================================================================================
-
-#====================================================================================================
-class DataMemberMasterClass():
-
-   @asyncio.coroutine
-   def execute(self, requestDict):
-      tableDispatchClass = dataTableDispatch.DataTableDispathClass('ML_MEMBER')
-      result = yield from tableDispatchClass.execute(requestDict)
-      return result
 #====================================================================================================

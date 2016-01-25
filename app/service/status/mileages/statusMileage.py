@@ -1,13 +1,13 @@
-import sys, os
+import sys, os, datetime
 import asyncio
 from app.data import dataTables
 
-class MemberEfficiencyClass():
+class StatusMileageClass():
     response = {}
 
     def __init__(self):
         self.response = {}
-        self.dataTableClass = dataTables.DataTableClass('ML_FUEL_EFFICIENCY')
+        self.dataTableClass = dataTables.DataTableClass('SL_STATS_MILEAGE')
 
     @asyncio.coroutine
     def execute(self, requestDict):
@@ -31,7 +31,19 @@ class MemberEfficiencyClass():
 
     @asyncio.coroutine
     def search(self, requestDict):
-        self.response = {}
+        self.response = requestDict
+        try :
+            queryCondition = {
+                'method' : 'search',
+                'condition' : {
+                    'VCI_ID' : requestDict.get('vciId')
+                }
+            }
+            self.response = self.dataTableClass.execute(queryCondition)
+        except :
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
 
         return self.response
 
@@ -44,8 +56,10 @@ class MemberEfficiencyClass():
                 'method' : 'create',
                 'condition' : {
                     'rows' : [{
-                        'MM_ID' : requestDict.get('mmId'),
-                        'CFE_ID' : requestDict.get('cfeId')
+                        'VCI_ID' : requestDict.get('vciId'),
+                        'SSM_DISTANCE_NUM' : requestDict.get('distanceNum'),
+                        'SSM_DISTANCE_CD' : requestDict.get('distanceCd'),
+                        'CREATE_DT' : datetime.datetime()
                     }]
                 }
             }
@@ -61,20 +75,6 @@ class MemberEfficiencyClass():
     @asyncio.coroutine
     def read(self, requestDict):
         self.response = {}
-
-        try:
-            queryCondition = {
-                'method' : 'read',
-                'condition' : {
-                    'mmId' : requestDict.get('mmId')
-                }
-            }
-
-            self.response = self.dataTableClass.execute(queryCondition)
-        except:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
 
         return self.response
 

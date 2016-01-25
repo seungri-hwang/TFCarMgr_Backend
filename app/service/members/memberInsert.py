@@ -41,8 +41,6 @@ class MemberInsertClass():
 			userPassword = conditions.get('userPassword')
 			memberID = requestDict.get('userNo')
 
-
-
 			# 중복 ID CHECK
 			queryCondition = {
 				"method": "read",

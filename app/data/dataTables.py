@@ -13,13 +13,11 @@ class MemberLayerMember():
 #====================================================================================================
 
 #====================================================================================================
-'''
-class DataBookingFlightCertifiedDocumentClass():
+class DataMemberMasterClass():
 
-	@asyncio.coroutine
-	def execute(self, requestDict):
-		tableDispatchClass = dataTableDispatch.DataTableDispathClass('bkBookingFlightCertifiedDocument')
-		result = yield from tableDispatchClass.execute(requestDict)
-		return result
-'''
+   @asyncio.coroutine
+   def execute(self, requestDict):
+      tableDispatchClass = dataTableDispatch.DataTableDispathClass('ML_MEMBER')
+      result = yield from tableDispatchClass.execute(requestDict)
+      return result
 #====================================================================================================

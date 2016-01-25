@@ -13,15 +13,3 @@ class DataTableClass():
 		result = yield from tableDispatch.execute(requestDict)
 		return result
 #====================================================================================================
-
-#====================================================================================================
-'''
-class DataBookingFlightCertifiedDocumentClass():
-
-	@asyncio.coroutine
-	def execute(self, requestDict):
-		tableDispatchClass = dataTableDispatch.DataTableDispathClass('bkBookingFlightCertifiedDocument')
-		result = yield from tableDispatchClass.execute(requestDict)
-		return result
-'''
-#====================================================================================================

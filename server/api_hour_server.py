@@ -47,6 +47,7 @@ class Container(api_hour.Container):
 
       # Members
       self.servers['http'].router.add_route('*', '/members/memberInsert', self.index)
+      self.servers['http'].router.add_route('*', '/members/memberGet', self.index)
 
 
 

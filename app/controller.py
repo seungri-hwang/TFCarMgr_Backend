@@ -2,7 +2,7 @@
 
 import asyncio
 import sys,os
-from app.service.members import memberInsert
+from app.service.members import memberInsert,memberGet
 
 
 from app.module import moduleDao, moduleHttp
@@ -23,23 +23,18 @@ class ControllerClass:
 
 		try:
 			serviceName = requestDict.get('service', '')
-			apiKey = requestDict.get('apiKey', '')
-
-			isAuthorized = True
 
 			# 멤버 조인
 			if serviceName == 'members.memberInsert':
 				serviceClass = memberInsert.MemberInsertClass()
 
-				serviceResult = yield from serviceClass.execute(requestDict)
-				self.response = serviceResult
-			else:
-				self.response = {
-					'isSucceed': False,
-					'error': {
-						'message': 'You are not authorized to use this service.'
-					}
-				}
+			# 멤버 조희
+			elif serviceName == 'members.memberGet':
+				serviceClass = memberGet.MemberGetClass()
+
+			serviceResult = yield from serviceClass.execute(requestDict)
+			self.response = serviceResult
+
 		except:
 			exc_type, exc_obj, exc_tb = sys.exc_info()
 			fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

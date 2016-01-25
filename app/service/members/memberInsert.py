@@ -51,7 +51,7 @@ class MemberInsertClass():
 			userEmail = conditions.get('userEmail').lower()
 			userName = conditions.get('userName')
 			userPassword = conditions.get('userPassword')
-			memberID = requestDict.get('userNo')
+			memberID = conditions.get('mmID')
 
 			# 중복 ID CHECK
 			queryCondition = {
@@ -85,7 +85,7 @@ class MemberInsertClass():
 				queryCondition = {
 					"method": "create",
 					"conditions": {
-					"rows": [rows]
+						"rows": [rows]
 					}
 				}
 				dataUserMasterResult = yield from dataUserMasterClass.execute(queryCondition)
@@ -106,7 +106,6 @@ class MemberInsertClass():
 		conditions = requestDict.get('conditions')
 		memberID = requestDict.get('userNo')
 		userEmail = conditions.get('userEmail').lower()
-		userName = conditions.get('userName')
 
 		query = "SELECT FROM "
 
@@ -121,7 +120,6 @@ class MemberInsertClass():
 				},
 			"query":query
 		}
-
 
 
 		dataUserMasterClassResult = yield from dataUserMasterClass.execute(queryCondition)

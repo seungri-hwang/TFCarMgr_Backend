@@ -39,73 +39,79 @@ class DataTableDispatchClass():
 
     @asyncio.coroutine
     def create(self, requestDict):
-        self.response = {}
-        result = {}
+      self.response = {}
+      result = {}
 
-        try:
-            daoClass = moduleDao.DaoClass()
-            queryCondition = requestDict['conditions']
-            queryConditionRows = queryCondition.get('rows')
+      try:
+         daoClass = moduleDao.DaoClass()
+         queryCondition = requestDict['conditions']
+         queryConditionRows = queryCondition.get('rows')
+         isValid = len(queryConditionRows) > 0
+         requestUserNo = queryCondition.get('mmID')
 
-            isValid = len(queryConditionRows) > 0
-            errorMessage = ''
+         errorMessage = ''
+         for key, value in queryConditionRows[0].items():
+            if key not in self.COLUMNS:
+               isValid = False
+               errorMessage = '%s is not exists.' % key
+               print('Unknown column %s in %s' % (key, self.TABLE_NAME))
+               print("----dataTAbleDispatch: "+key)
+               break
 
+         if isValid == False:
+            # validation error
+            result = {
+               'isSucceed': False,
+               'error': {
+                  'message': errorMessage
+               }
+            }
+            self.response['result'] = result
+         else:
 
-            #Key 값 검증작업
-            for key, value in queryConditionRows[0].items():
-                if(key not in self.COLUMNS):
-                    isValid = False
-                    errorMessage = '%s is not exists.' %key
+            query = u"""
+                  INSERT INTO %s
+                  (%s)
+                  values (%s)
+               """ % (
+               self.TABLE_NAME,
+               ', '.join([column for column, value in queryConditionRows[0].items()]),
+               ', '.join(['%s' for column, value in queryConditionRows[0].items()])
+            )
 
-                    break
+            print('')
+            data = []
+            for row in queryConditionRows:
 
-            if isValid == False:
-                result = {
-                    'isSucceed' : False ,
-                    'error' : {
-                        'message' : errorMessage
-                    }
-                }
+               data += [
+                  tuple([value for column, value in row.items()])
+               ]
+
+            # print(query, data)
+            dictResult = yield from daoClass.executemany(query, data)
+            #print(dictResult)
+
+            if len(dictResult) > 1:
+               if dictResult.get('error'):
+                  result = {
+                     'error' : dictResult.get('error'),
+                     'isSucceed' : False
+                  }
             else:
-                #쿼리 생성
-                query = u"""
-                       INSERT INTO %s
-                       (%s)
-                       values (%s)
-                    """ % (
-                    self.TABLE_NAME,
-                   ', '.join([column for column, value in queryConditionRows[0].items()]),
-                   ', '.join(['%s' for column, value in queryConditionRows[0].items()])
-                )
-                print(query)
+               result = {
+                  'isSucceed' : True
+               }
 
-                data = []
-                for row in queryConditionRows:
-                    data += [
-                        tuple([value for column, valuye in row.items()])
-                    ]
 
-                dictResult = yield from daoClass.executemany(query, data)
+         self.response['result'] = result
 
-                if len(dictResult) > 1:
-                    if dictResult.get('error'):
-                        result = {
-                            'error': dictResult.get('error'),
-                            'isSucceed': False
-                        }
-                else:
-                    result = {
-                        'isSucceed' : True
-                    }
+         print( self.response );
+      except:
+         exc_type, exc_obj, exc_tb = sys.exc_info()
+         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+         print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
 
-                    if dictResult.get('autoIncrement'):
-                        result[self.AUTO_INCREMENT] = dictResult.get('autoIncrement')
-
-                self.response['result'] = result
-        except:
-            print('[Error] >>> 에러입니다')
-
-        return self.response
+      return self.response
 
     @asyncio.coroutine
     def read(self, requestDict):
@@ -181,8 +187,7 @@ class DataTableDispatchClass():
             queryConditionRows = requestDict('rows')
             service = requestDict.get('service')
             daoClass = moduleDao.DaoClass()
-            requestUserNo = requestDict.get('MM_ID')
-
+            requestUserNo = queryCondition.get('mmID')
 
 
 

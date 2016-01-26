@@ -114,12 +114,6 @@ class DataTableDispatchClass():
 
       return self.response
 
-    # @asyncio.coroutine
-    # def read(self,requestDict):
-    #     self.response = requestDict
-    #     return self.response
-
-
 
     @asyncio.coroutine
     def read_light(self, requestDict):

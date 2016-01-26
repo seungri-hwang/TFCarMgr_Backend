@@ -1,6 +1,7 @@
 import os
 import sys
 import asyncio
+import traceback
 
 from app.data import dataTableSchema
 from app.module import moduleDao
@@ -101,7 +102,7 @@ class DataTableDispatchClass():
                     if dictResult.get('autoIncrement'):
                         result[self.AUTO_INCREMENT] = dictResult.get('autoIncrement')
 
-                self.response['result'] = result
+            self.response['result'] = result
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -112,13 +113,13 @@ class DataTableDispatchClass():
     @asyncio.coroutine
     def read(self, requestDict):
         self.response = requestDict
-        isValid = True
-        errorMessage =''
-        daoClass = moduleDao.DaoClass()
 
         try:
             result = {}
             queryCondition = requestDict.get('conditions', {})
+            isValid = True
+            errorMessage =''
+            daoClass = moduleDao.DaoClass()
 
             # 필수 값 확인
             for key in self.SELECT_KEYS:
@@ -143,14 +144,12 @@ class DataTableDispatchClass():
                 self.response['result'] = result
                 return self.response
 
-
             # 이후 DB에서 데이터를 read하는 모듈 시작
             condition = []
 
             for column in self.COLUMNS:
                 if queryCondition.get(column):
                     condition.append(u'`%s` = \'%s\'' % (column, queryCondition.get(column)))
-
 
             query = u'SELECT DISTINCT * FROM %s' % self.TABLE_NAME
 
@@ -175,14 +174,100 @@ class DataTableDispatchClass():
 
     @asyncio.coroutine
     def update(self, requestDict):
+        self.response = {}
 
+        try :
+            message = None
+            dictResult = {}
+            queryCondition = requestDict.get('condition')
+            queryConditionRows = queryCondition.get('rows')
+            daoClass = moduleDao.DaoClass()
 
-        return ""
+            for queryConditionRow in queryConditionRows:
+                equal = queryConditionRow.get('equal')
+
+                #쿼리 조건절
+                condition = []
+                for key in self.KEYS :
+                    if queryConditionRow.get('equal'):
+                        if equal.get(key):
+                            condition.append(u'%s = \'%s\'' % (key, equal.get(key)))
+
+                #정보 입력
+                setString = []
+                for key, value in queryConditionRow.items():
+                    if key not in ('equal'):
+                        if value is not None:
+                            if type(value) == type(str):
+                                value = value.replace('"', "'")
+                            setString.append(u'%s = \"%s\"' % (key, value))
+                        else :
+                            setString.append(u'%s = null' % (key))
+
+            query = u'UPDATE %s \n' % self.TABLE_NAME
+            query += u'SET %s \n' % u', '.join(setString)
+            query += u' WHERE %s \n' % u' and '.join(condition)
+
+            listDictResult = yield from daoClass.execute(query)
+
+            if len(listDictResult) > 0 :
+                if listDictResult.get('error'):
+                    message = listDictResult
+
+            if message is not None :
+                dictResult['result'] = message
+            else :
+                dictResult['result'] = {
+                    'isSucceed' : True
+                }
+
+            self.response = dictResult
+        except :
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
+
+        return self.response
 
     @asyncio.coroutine
     def delete(self, requestDict):
         self.response = {}
 
+        try :
+            queryCondition = requestDict.get('condition')
+            queryConditionRows = queryCondition.get('rows', [queryCondition])
+
+            for queryConditionRow in queryConditionRows:
+                condition = []
+                for key in self.KEYS:
+                    if queryCondition.get(key):
+                        condition.append(u'%s = \'%s\'' % (key, queryConditionRow.get(key)))
+
+                query = u'DELETE FROM %s' % self.TABLE_NAME
+                query += u' WHERE %s' % u' and '.join(condition)
+
+                try :
+                    daoClass = moduleDao.DaoClass()
+                    yield from daoClass.execute(query)
+                    result = {
+                        'isSucceed' : True
+                    }
+                except :
+                    result = {
+                        'isSucceed': False,
+                        'error': {
+                            'message' : traceback.format_exc()
+                        }
+                    }
+        except :
+            result = {
+                'isSucceed' : False,
+                'error' : {
+                    'message' : traceback.format_exc()
+                }
+            }
+
+        self.response['result'] = result
         return self.response
 
     @asyncio.coroutine

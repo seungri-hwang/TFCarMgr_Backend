@@ -1,4 +1,6 @@
-import sys, os
+import sys
+import os
+import datetime
 import asyncio
 from app.data import dataTables
 
@@ -7,6 +9,7 @@ class VehicleInformationClass():
 
     def __init__(self):
         self.response = {}
+        self.currentTime = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
         self.dataTableClass = dataTables.DataTableClass('VL_CAR_INFO')
 
     @asyncio.coroutine
@@ -38,15 +41,17 @@ class VehicleInformationClass():
     @asyncio.coroutine
     def create(self, requestDict):
         self.response = requestDict
-
         try:
             queryCondition = {
                     'method' : 'create'
                 ,   'condition' : {
                         'rows' : [{
-                            'MM_ID' : requestDict.get('MM_ID'),
-                            'VCI_CAR_NUMBER' : requestDict.get('VCI_CAR_NUMBER'),
-                            'VCI_CAR_NAME' : requestDict.get('VCI_CAR_NAME')
+                            'MM_ID' : requestDict.get('condition').get('mmId'),
+                            'VCI_CAR_NUMBER' : requestDict.get('condition').get('carNumber'),
+                            'VCI_CAR_NAME' : requestDict.get('condition').get('carName'),
+                            'CREATE_DT' : self.currentTime,
+                            'UPDATE_DT' : self.currentTime,
+                            'DEL_YN' : 'N'
                         }]
                 }
             }
@@ -61,7 +66,6 @@ class VehicleInformationClass():
     @asyncio.coroutine
     def read(self, requestDict):
         self.response = requestDict
-
         try :
             queryCondition = {
                     'method' : 'read'
@@ -90,15 +94,16 @@ class VehicleInformationClass():
     @asyncio.coroutine
     def delete(self, requestDict):
         self.response = requestDict
-
         try :
             queryCondition = {
-                    'method' : 'update'
-                ,   'condition' : {
-                        'rows' : [{
-                            'VCI_ID' : requestDict.get('vciId'),
-                            'DEL_YN' : 'Y'
-                        }]
+                'method' : 'update',
+                'condition' : {
+                    'rows' : [{
+                        'equal' : {
+                            'VCI_ID' : requestDict.get('condition').get('vciId')
+                        },
+                        'DEL_YN' : 'Y'
+                    }]
                 }
             }
             self.response = yield from self.dataTableClass.execute(queryCondition)

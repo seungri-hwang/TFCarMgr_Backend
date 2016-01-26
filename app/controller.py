@@ -3,7 +3,7 @@
 import asyncio
 import sys,os
 
-from app.service.members import memberInsert,memberGet,memberList
+from app.service.members import memberInsert,memberGet,memberList,memberLogin
 from app.service.vehicles import vehicleInformation
 from app.service.memberEfficiencies import memberEfficiency
 from app.service.fuelEfficiencies import fuelEfficiency
@@ -31,6 +31,12 @@ class ControllerClass:
 			if serviceName == 'members.memberInsert':
 				serviceClass = memberInsert.MemberInsertClass()
 				serviceResult = yield from serviceClass.execute(requestDict)
+				self.response = serviceResult
+
+			# 멤버 로그인
+			elif serviceName == 'members.memberLogin':
+				serviceClass = memberLogin.MemberLoginClass()
+				serviceResult = yield from serviceClass.exccute(requestDict)
 				self.response = serviceResult
 
 			elif serviceName == 'statusTypes.statusTypeList':

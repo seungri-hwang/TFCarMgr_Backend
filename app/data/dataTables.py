@@ -2,7 +2,8 @@
 import asyncio
 from app.data import dataTableDispatch
 
-#====================================================================================================
+
+# ====================================================================================================
 class DataTableClass():
 	def __init__(self, tableName):
 		self.tableName = tableName
@@ -12,4 +13,4 @@ class DataTableClass():
 		tableDispatch = dataTableDispatch.DataTableDispatchClass(self.tableName)
 		result = yield from tableDispatch.execute(requestDict)
 		return result
-#====================================================================================================
+# ====================================================================================================

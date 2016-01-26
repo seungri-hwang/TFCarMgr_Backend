@@ -48,6 +48,7 @@ class Container(api_hour.Container):
       self.servers['http'].router.add_route('*', '/members/memberInsert', self.index)
       self.servers['http'].router.add_route('*', '/members/memberGet', self.index)
       self.servers['http'].router.add_route('*', '/members/memberList', self.index)
+      self.servers['http'].router.add_route('*', '/members/memberLogin', self.index)
 
       # 차량조회
       self.servers['http'].router.add_route('*', '/vehicles/vehicleInsert', self.index)

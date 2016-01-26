@@ -1,4 +1,4 @@
-import  asyncio
+import asyncio
 from app.data import dataTables
 
 import sys, os
@@ -73,7 +73,7 @@ class MemberGetClass():
                 "query":carQuery
             }
 
-            carList = yield  from dataCarMasterClass.execute(carQueryCondition)
+            carList = yield from dataCarMasterClass.execute(carQueryCondition)
 
             if 0 >= len(userList.get('result').get('list')) or 0 >= len(carList.get('result').get('list')):
                 result = {

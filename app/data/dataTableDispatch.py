@@ -8,7 +8,6 @@ class DataTableDispatchClass():
 
     def __init__(self, tableName):
         self.response = {}
-
         self.TABLE_NAME = tableName
         self.AUTO_INCREMENT = dataTableSchema.dbSchema[self.TABLE_NAME]['AUTO_INCREMENT']
         self.COLUMNS = dataTableSchema.dbSchema[self.TABLE_NAME]['COLUMNS']
@@ -16,10 +15,13 @@ class DataTableDispatchClass():
         self.NOT_NULL_COLUMNS = dataTableSchema.dbSchema[self.TABLE_NAME]['NOT_NULL_COLUMNS']
         self.SELECT_KEYS = dataTableSchema.dbSchema[self.TABLE_NAME]['SELECT_KEYS']                 # 이건 이해 안감
         self.ADDTIONAL_DATA = dataTableSchema.dbSchema[self.TABLE_NAME]['ADDTIONAL_DATA']           # 이건 이해 안감
+        print("222222")
 
     @asyncio.coroutine
     def execute(self, requestDict):
         self.response = {}
+
+        print("000000")
 
         try:
             if requestDict['method'] == 'create':
@@ -115,10 +117,10 @@ class DataTableDispatchClass():
 
       return self.response
 
-    @asyncio.coroutine
-    def read(self,requestDict):
-        self.response = requestDict
-        return self.response
+    # @asyncio.coroutine
+    # def read(self,requestDict):
+    #     self.response = requestDict
+    #     return self.response
 
 
 
@@ -133,6 +135,7 @@ class DataTableDispatchClass():
             result = {}
             queryCondition = requestDict.get('conditions', {})
 
+            print('1111')
 
             # 필수 값 확인
             for key in self.SELECT_KEYS:
@@ -141,6 +144,7 @@ class DataTableDispatchClass():
                     errorMessage = '%s is required column.' % key
                     break
 
+            print('22222')
             # 요청한 컬럼이 존재하는지 확인
             for key, value in queryCondition.items():
                 if key not in self.COLUMNS:
@@ -156,15 +160,6 @@ class DataTableDispatchClass():
                 }
                 self.response['result'] = result
                 return self.response
-
-
-            # 이후 DB에서 데이터를 read하는 모듈 시작
-            condition = []
-
-            for column in self.COLUMNS:
-                if queryCondition.get(column):
-                    condition.append(u'`%s` = \'%s\'' % (column, queryCondition.get(column)))
-
 
             query = u'SELECT DISTINCT * FROM %s' % self.TABLE_NAME
 
@@ -213,4 +208,345 @@ class DataTableDispatchClass():
 
     @asyncio.coroutine
     def search(self, requestDict):
-        return ""
+        self.response = {}
+
+        try:
+            query = requestDict.get('conditions').get('query')
+            daoClass = moduleDao.DaoClass()
+            print('query -----------')
+            print(query)
+            list = yield from daoClass.execute(query)
+
+            if 0 >= len(list):
+                message = "존재하지 않는 테이블입니다."
+                result = {
+                    "result":False,
+                    "message":message
+                }
+            else:
+                message = "성공"
+                result = {
+                    "result":True,
+                    "list":list,
+                    "message":message
+                }
+            self.response = result
+
+        except:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
+
+        return self.response
+
+
+    @asyncio.coroutine
+    def read(self, requestDict):
+        self.response = requestDict
+
+        try:
+            result = {}
+            queryCondition = requestDict.get('condition', {})
+
+            # validtion check
+            isValid = True
+            errorMessage = ''
+            calcurateCount = False
+            daoClass = moduleDao.DaoClass()
+
+            # 필수 값 확인
+            for key in self.SELECT_KEYS:
+                if not queryCondition.get(key):
+                    isValid = False
+                    errorMessage = '%s is required column.' % key
+                    break
+
+            # 요청한 컬럼이 존재하는지 확인
+            for key, value in queryCondition.items():
+                if key not in ('like', 'isNotNull', 'between', 'groupBy', 'isNull', 'lessThan', 'lessThanEqual', 'greaterThan', 'greaterThanEqual', 'equal', 'option', 'limit', 'orderBy', 'orderByDesc', 'or', 'and', 'query'):
+                    if key not in self.COLUMNS:
+                        isValid = False
+                        errorMessage = 'Unknown column: %s in %s' % (key, self.TABLE_NAME)
+                        break
+
+            if isValid == False:
+                result = {
+                    'isSucceed': False,
+                    'error': {
+                        'message': errorMessage
+                    }
+                }
+            else:
+                condition = []
+
+                # generatge query
+                for column in self.COLUMNS:
+                    if queryCondition.get(column):
+                        condition.append(u'`%s` = \'%s\'' % (column, queryCondition.get(column)))
+
+                # like operator
+                for likeOperator in queryCondition.get('like', {}):
+                    for key, value in likeOperator.items():
+                        condition.append(u'`%s` like \'%%%s%%\'' % (key, value) )
+                    #condition.append(u'%s like \'%%%s%%\'' % (likeOperator.get('column'), likeOperator.get('value')))
+
+                # between
+                if queryCondition.get('between'):
+                    for key, value in queryCondition.get('between').items():
+                        condition.append(u'`%s` between \'%s\' and \'%s\'' % (key, value[0], value[1]))
+                    #value = betweenOperator.get('value')
+                    #condition.append(u'%s between \'%s\' and \'%s\'' % (betweenOperator.get('column'), value[0], value[1]))
+
+                # is not null
+                for columnName in queryCondition.get('isNotNull', []):
+                    condition.append(u'`%s` is not null' % columnName)
+
+                # is null
+                for columnNullName in queryCondition.get('isNull', []):
+                    condition.append(u'`%s` is null' % columnNullName)
+
+                # less Than
+                if queryCondition.get('lessThan'):
+                    for key, value in queryCondition.get('lessThan').items():
+                        condition.append(u'`%s` < \'%s\'' % (key, value))
+
+                # lessThanEqual
+                if queryCondition.get('lessThanEqual'):
+                    for key, value in queryCondition.get('lessThanEqual').items():
+                        condition.append(u'`%s` <= \'%s\'' % (key, value))
+
+                # greaterThan
+                if queryCondition.get('greaterThan'):
+                    for key, value in queryCondition.get('greaterThan').items():
+                        condition.append(u'`%s` > \'%s\'' % (key, value))
+
+                # greaterThanEqual
+                if queryCondition.get('greaterThanEqual'):
+                    for key, value in queryCondition.get('greaterThanEqual').items():
+                        condition.append(u'`%s` >= \'%s\'' % (key, value))
+
+                # equal
+                if queryCondition.get('equal'):
+                        for key, value in queryCondition.get('equal').items():
+                            condition.append(u'`%s` = \'%s\'' % (key, value))
+
+
+                # or
+                if queryCondition.get('or'):
+                    ors = queryCondition.get('or')
+
+                    if type(ors) != type([]):
+                        ors = [ors]
+
+                    orCondition = []
+                    for __or__ in ors:
+                        for key, value in __or__.items():
+                            if key == 'and':
+                                orAndCondition = []
+
+                                for val in value:
+                                    for __key__, __value__ in val.items():
+                                        if __value__ == 'is null':
+                                            orAndCondition.append(u'`%s` is null' % (__key__))
+                                        else:
+                                            orAndCondition.append(u'`%s` = \'%s\'' % (__key__, __value__))
+
+                                    orCondition.append(u'(%s)' % ' and '.join(orAndCondition))
+                            else:
+                                orCondition.append(u'`%s` = \'%s\'' % (key, value))
+
+                    condition.append(u'(%s)' % ' or '.join(orCondition))
+
+                # and
+                if queryCondition.get('and'):
+                    ands = queryCondition.get('and')
+
+                    if type(ands) != type([]):
+                        ands = [ands]
+
+                    andCondition = []
+                    for __and___ in ands:
+                        for key, value in __and___.items():
+                            if key == 'or':
+                                andOrCondition = []
+
+                                for val in value:
+                                    for __key__, __value__ in val.items():
+                                        if __value__ == 'is null':
+                                            andOrCondition.append(u'`%s` is null' % (__key__))
+                                        else:
+                                            andOrCondition.append(u'`%s` = \'%s\'' % (__key__, __value__))
+
+                                    andCondition.append(u'(%s)' % ' or '.join(andOrCondition))
+                            elif key == 'orLike':
+                                andOrLikeCondition = []
+
+                                for val in value:
+                                    for __key__, __value__ in val.items():
+                                        andOrLikeCondition.append(u'`%s` like \'%%%s%%\'' % (__key__, __value__))
+
+                                    andCondition.append(u'(%s)' % ' or '.join(andOrLikeCondition))
+                            else:
+                                andCondition.append(u'`%s` = \'%s\'' % (key, value))
+
+                    condition.append(u'(%s)' % ' and '.join(andCondition))
+
+
+
+
+                query = u'SELECT DISTINCT * FROM %s' % self.TABLE_NAME
+
+
+                if queryCondition.get('query'):
+                    query = queryCondition.get('query')
+
+                if len(condition)> 0:
+                    query += u' WHERE %s' % u' and '.join(condition)
+
+                if 'vw' in self.TABLE_NAME:
+                    if queryCondition.get('groupBy'):
+                        query += u' GROUP BY `%s`' % u'`,`'.join(queryCondition.get('groupBy'))
+                    # orderBy
+                    if queryCondition.get('orderBy'):
+                        query += u' ORDER BY `%s`' % u', '.join(queryCondition.get('orderBy'))
+                    elif queryCondition.get('orderByDesc'):
+                        query += u' ORDER BY `%s` desc' % u' desc,'.join(queryCondition.get('orderByDesc'))
+                else:
+                    if queryCondition.get('groupBy'):
+                        query += u' GROUP BY %s' % u','.join(queryCondition.get('groupBy'))
+                    # orderBy
+                    if queryCondition.get('orderBy'):
+                        query += u' ORDER BY %s' % u', '.join(queryCondition.get('orderBy'))
+                    elif queryCondition.get('orderByDesc'):
+                        query += u' ORDER BY %s desc' % u' desc,'.join(queryCondition.get('orderByDesc'))
+
+                # limit
+                if queryCondition.get('limit'):
+                    limit = queryCondition['limit']
+                    query += u' LIMIT %s, %s' % (limit[0], limit[1])
+
+
+                if queryCondition.get('option'):
+                    # 토탈 Count 쿼리 수정 - 15.11.19
+                    if queryCondition['option'].get('calcurateCount') == True:
+                        calcurateCount = True
+
+                if calcurateCount:
+                    (queryResult, total) = yield from daoClass.execute(query, calcurateCount=calcurateCount)
+                else:
+                    queryResult = yield from daoClass.execute(query)
+
+                timestampColumns = ['firstInsertTime', 'lastUpdateTime', 'approvedCheckedTime', 'settleActionTime', 'cancelActionTime']
+
+                # datetime.date 타입 체크
+                if queryCondition.get('option'):
+                    if queryCondition.get('option').get('convertDate') == True:
+                        for column in queryResult:
+                            for key, value in column.items():
+                                if type(value) == type(datetime.date(2015, 1, 1)):
+
+                                    # timezone 적용
+                                    for timestampColumn in timestampColumns:
+                                        if timestampColumn in key:
+                                            value = value + datetime.timedelta(hours=9)
+                                            break
+
+                                    value = '%s-%02d-%02d' % (value.year, value.month, value.day)
+                                    column.update({key: value})
+
+                    #  datetime.datetime 타입 체크
+                    if queryCondition.get('option').get('convertDatetime') == True:
+                        for column in queryResult:
+                            for key, value in column.items():
+                                if type(value) == type(datetime.datetime(2015, 1, 1, 1, 1, 1)):
+
+                                    # timezone 적용
+                                    for timestampColumn in timestampColumns:
+                                        if timestampColumn in key:
+                                            value = value + datetime.timedelta(hours=9)
+                                            break
+
+                                    value = '%s-%02d-%02d %02d:%02d:%02d' % ( value.year, value.month, value.day, value.hour, value.minute, value.second )
+                                    column.update({key: value})
+
+
+                try:
+                    for queryResultRow in queryResult:
+                        # firstInsertUno, lastUpdateUno는 항상 변환한다.
+                        try:
+                            if queryResultRow.get('firstInsertUno'):
+                                queryResultRow['firstInsertUnoName'] = yield from redisClass.get('usUserMaster:%s:name' % str(queryResultRow.get('firstInsertUno')))
+                            if queryResultRow.get('lastUpdateUno'):
+                                queryResultRow['lastUpdateUnoName'] = yield from redisClass.get('usUserMaster:%s:name' % str(queryResultRow.get('lastUpdateUno')))
+                        except:
+                            pass
+
+                    # ADDTIONAL_DATA
+                    if self.ADDTIONAL_DATA:
+                        for queryResultRow in queryResult:
+                            for addionalDataRow in self.ADDTIONAL_DATA:
+                                try:
+                                    tableColumnName = addionalDataRow['tableColumnName']
+
+                                    columnEN = None
+                                    if addionalDataRow.get('toTransoform'):
+                                        toTransoform = addionalDataRow.get('toTransoform')
+                                        columnName = toTransoform['columnName']
+                                        redisKey = toTransoform['redisKey']
+
+                                        middleKey = ''
+                                        lastKey = ''
+
+                                        if len(redisKey) == 2:
+                                            middleKey = str(queryResultRow[tableColumnName])
+                                            lastKey = redisKey[1]
+                                        elif len(redisKey) == 3:
+                                            middleKey = redisKey[1]+':'+str(queryResultRow[tableColumnName])
+                                            lastKey = redisKey[2]
+
+                                        queryResultRow[columnName] = yield from redisClass.get(redisKey[0]+':'+middleKey+':'+lastKey)
+                                        columnEN = queryResultRow[columnName]
+
+                                    if addionalDataRow.get('toTranslate'):
+                                        toTranslate = addionalDataRow.get('toTranslate')
+                                        extraCode = toTranslate['extraCode']
+                                        columnName = toTranslate['columnName']
+                                        tableName = toTranslate['tableName']
+
+                                        if columnEN is None:
+                                            columnEN = queryResultRow[tableColumnName]
+
+                                        if extraCode != '*':
+                                            if extraCode == 'masterCode':
+                                                extraCode = queryResultRow['masterCode']
+                                            elif extraCode == '[COUNTRY_CODE]':
+                                                extraCode = queryResultRow[extraCode][:2]
+
+                                        #print(libMultilingualNameEN, 'KO', tableName,  extraCode)
+                                        queryResultRow[columnName] = yield from multilingualClass.execute(columnEN, 'KO', tableName,  extraCode)
+                                        if queryResultRow[columnName] is None:
+                                            queryResultRow[columnName] = columnEN
+                                except:
+                                    pass
+                except:
+                    exc_type, exc_obj, exc_tb = sys.exc_info()
+                    fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+                    print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
+
+                result = {
+                    'isSucceed': True,
+                    'list': queryResult
+                }
+
+                if calcurateCount == True:
+                    result['total'] = total
+
+            self.response['result'] = result
+        except:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
+
+        return self.response
+
+

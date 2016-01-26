@@ -1,4 +1,6 @@
-import sys, os, datetime
+import sys
+import os
+import datetime
 import asyncio
 from app.data import dataTables
 
@@ -7,6 +9,7 @@ class StatusMileageClass():
 
     def __init__(self):
         self.response = {}
+        self.currentTime = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
         self.dataTableClass = dataTables.DataTableClass('SL_STATS_MILEAGE')
 
     @asyncio.coroutine
@@ -78,7 +81,7 @@ class StatusMileageClass():
                         'VCI_ID' : requestDict.get('condition').get('vciId'),
                         'SSM_DISTANCE_NUM' : requestDict.get('condition').get('distanceNum'),
                         'SSM_DISTANCE_CD' : requestDict.get('condition').get('distanceCd'),
-                        'CREATE_DT' : "NOW()"
+                        'CREATE_DT' : self.currentTime
                     }]
                 }
             }

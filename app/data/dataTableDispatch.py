@@ -42,13 +42,89 @@ class DataTableDispatchClass():
         return self.response
 
     @asyncio.coroutine
+    def create(self, requestDict):
+      self.response = {}
+      result = {}
+
+      try:
+         daoClass = moduleDao.DaoClass()
+         queryCondition = requestDict['conditions']
+         queryConditionRows = queryCondition.get('rows')
+         isValid = len(queryConditionRows) > 0
+         requestUserNo = queryCondition.get('mmID')
+
+         errorMessage = ''
+         for key, value in queryConditionRows[0].items():
+            if key not in self.COLUMNS:
+               isValid = False
+               errorMessage = '%s is not exists.' % key
+               print('Unknown column %s in %s' % (key, self.TABLE_NAME))
+               print("----dataTAbleDispatch: "+key)
+               break
+
+         if isValid == False:
+            # validation error
+            result = {
+               'isSucceed': False,
+               'error': {
+                  'message': errorMessage
+               }
+            }
+            self.response['result'] = result
+         else:
+
+            query = u"""
+                  INSERT INTO %s
+                  (%s)
+                  values (%s)
+               """ % (
+               self.TABLE_NAME,
+               ', '.join([column for column, value in queryConditionRows[0].items()]),
+               ', '.join(['%s' for column, value in queryConditionRows[0].items()])
+            )
+
+            print('')
+            data = []
+            for row in queryConditionRows:
+
+               data += [
+                  tuple([value for column, value in row.items()])
+               ]
+
+            # print(query, data)
+            dictResult = yield from daoClass.executemany(query, data)
+            #print(dictResult)
+
+            if len(dictResult) > 1:
+               if dictResult.get('error'):
+                  result = {
+                     'error' : dictResult.get('error'),
+                     'isSucceed' : False
+                  }
+            else:
+               result = {
+                  'isSucceed': True
+               }
+
+
+         self.response['result'] = result
+
+         print(self.response)
+      except:
+         exc_type, exc_obj, exc_tb = sys.exc_info()
+         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+         print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
+
+      return self.response
+
+
+    @asyncio.coroutine
     def read_light(self, requestDict):
         self.response = requestDict
         isValid = True
         errorMessage =''
         daoClass = moduleDao.DaoClass()
 
-        print('asdfasasf')
         try:
             result = {}
             queryCondition = requestDict.get('conditions', {})

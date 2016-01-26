@@ -98,25 +98,21 @@ class StatusAccountInsert():
             if 0 < len(list):
                 print("asdfasdf")
 
-                update = \
-                {
-                      "SSCA_ID":sscaID,
-                      "SSS_ID": sssID,
-                      "VCI_ID": vciID,
-                      "SSCA_REG_DATE": regDate,
-                      "SSCA_PRICE_NUM": priceNum,
-                      "SSCA_GAS_NUM": gasNum,
-                      "SSCA_GAS_VOLUME_CD": gasVolumeCd,
-                      "SSCA_DISTANCE_NUM": distanceNum,
-                      "SSCA_DISTANCE_CD": distanceCd,
-                      "SSCA_GASSTATION_NAME": gasstationName,
-                      "SSCA_NOTE": note
+                update = {
+                    "SSCA_ID":sscaID,
+                    "SSS_ID": sssID,
+                    "VCI_ID": vciID,
+                    "SSCA_REG_DATE": regDate,
+                    "SSCA_PRICE_NUM": priceNum,
+                    "SSCA_GAS_NUM": gasNum,
+                    "SSCA_GAS_VOLUME_CD": gasVolumeCd,
+                    "SSCA_DISTANCE_NUM": distanceNum,
+                    "SSCA_DISTANCE_CD": distanceCd,
+                    "SSCA_GASSTATION_NAME": gasstationName,
+                    "SSCA_NOTE": note
                 }
 
                 update['equal'] = {"SSCA_ID":sscaID}
-
-                print("--------------update")
-                print( update )
 
                 queryCondition = {
                     "method": "update",
@@ -128,7 +124,6 @@ class StatusAccountInsert():
 
                 print('----------------------- update')
                 print(retData)
-
 
 
             # create

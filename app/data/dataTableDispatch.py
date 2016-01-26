@@ -17,7 +17,7 @@ class DataTableDispatchClass():
         self.COLUMNS = dataTableSchema.dbSchema[self.TABLE_NAME]['COLUMNS']
         self.KEYS = dataTableSchema.dbSchema[self.TABLE_NAME]['KEYS']
         self.NOT_NULL_COLUMNS = dataTableSchema.dbSchema[self.TABLE_NAME]['NOT_NULL_COLUMNS']
-        self.SELECT_KEYS = dataTableSchema.dbSchema[self.TABLE_NAME]['SELECT_KEYS']                 # 이건 이해 안감
+        self.SELECT_KEYS = dataTableSchema.dbSchema[self.TABLE_NAME]['SELECT_KEYS']                 # 필수키 값
         self.ADDTIONAL_DATA = dataTableSchema.dbSchema[self.TABLE_NAME]['ADDTIONAL_DATA']           # 이건 이해 안감
 
     @asyncio.coroutine
@@ -117,9 +117,12 @@ class DataTableDispatchClass():
         try:
             result = {}
             queryCondition = requestDict.get('conditions', {})
+
+            #유효성 검사 체크
             isValid = True
-            errorMessage =''
+            errorMessage = ''
             daoClass = moduleDao.DaoClass()
+            calcurateCount = False
 
             # 필수 값 확인
             for key in self.SELECT_KEYS:
@@ -135,35 +138,157 @@ class DataTableDispatchClass():
                     errorMessage = 'Unknown column: %s in %s' % (key, self.TABLE_NAME)
                     break
 
-            # 필수 키 값이나 요청한 칼럼이 없다면 에러메시지 리턴 후 모듈 종료
-            if isValid == False:
+            if isValid == False :
                 result = {
-                    'isSucceed':False,
-                    'error':errorMessage
+                    'isSucceed' : False,
+                    'error' : {
+                        'message' : errorMessage
+                    }
                 }
-                self.response['result'] = result
-                return self.response
+            else :
+                #쿼리 조건절 시작
+                condition = []
 
-            # 이후 DB에서 데이터를 read하는 모듈 시작
-            condition = []
+                #기본 쿼리) EX : XXX = XXX
+                for column in self.COLUMNS :
+                    if queryCondition.get(column):
+                        condition.append(u'`%s` = \'%s\'' % (column, queryCondition.get(column)))
 
-            for column in self.COLUMNS:
-                if queryCondition.get(column):
-                    condition.append(u'`%s` = \'%s\'' % (column, queryCondition.get(column)))
+                #LIKE QUERY
+                for likeOperator in queryCondition.get('like', {}):
+                    for key, value in likeOperator.items():
+                        condition.append(u'`%s` LIKE \'%%%s%%\'' % (key, value))
 
-            query = u'SELECT DISTINCT * FROM %s' % self.TABLE_NAME
+                #BETWEEN QUERY
+                if queryCondition.get('between'):
+                    for key, value in queryCondition.get('between').items():
+                        condition.append(u'`%s` BETWEEN \'%s\' and \'%s\'' % (key, value[0], value[1]))
 
-            if requestDict.get('query'):
-                query = requestDict.get('query')
+                #IS NOT NULL
+                for columnName in queryCondition.get('isNotNull', []):
+                    condition.append(u'`%s` IS NOT NULL' % columnName)
 
-            # Query 실행
-            queryResult = yield from daoClass.execute(query)
+                #IS NULL
+                for columnNullName in queryCondition.get('isNull', []):
+                    condition.append(u'`%s` IS NULL' % columnNullName)
 
-            # 결과값 세팅
-            result = {
-               'isSucceed': True,
-               'list': queryResult
-             }
+                # less Than
+                if queryCondition.get('lessThan'):
+                    for key, value in queryCondition.get('lessThan').items():
+                        condition.append(u'`%s` < \'%s\'' % (key, value))
+
+                # lessThanEqual
+                if queryCondition.get('lessThanEqual'):
+                    for key, value in queryCondition.get('lessThanEqual').items():
+                        condition.append(u'`%s` <= \'%s\'' % (key, value))
+
+                # greaterThan
+                if queryCondition.get('greaterThan'):
+                    for key, value in queryCondition.get('greaterThan').items():
+                        condition.append(u'`%s` > \'%s\'' % (key, value))
+
+                # greaterThanEqual
+                if queryCondition.get('greaterThanEqual'):
+                    for key, value in queryCondition.get('greaterThanEqual').items():
+                        condition.append(u'`%s` >= \'%s\'' % (key, value))
+
+                # equal
+                if queryCondition.get('equal'):
+                    for key, value in queryCondition.get('equal').items():
+                        condition.append(u'`%s` = \'%s\'' % (key, value))
+
+                # or
+                if queryCondition.get('or'):
+                    ors = queryCondition.get('or')
+
+                    if type(ors) != type([]):
+                        ors = [ors]
+
+                    orCondition = []
+                    for __or__ in ors:
+                        for key, value in __or__.items():
+                            if key == 'and':
+                                orAndCondition = []
+
+                                for val in value:
+                                    for __key__, __value__ in val.items():
+                                        if __value__ == 'is null':
+                                            orAndCondition.append(u'`%s` is null' % (__key__))
+                                        else:
+                                            orAndCondition.append(u'`%s` = \'%s\'' % (__key__, __value__))
+
+                                    orCondition.append(u'(%s)' % ' and '.join(orAndCondition))
+                            else:
+                                orCondition.append(u'`%s` = \'%s\'' % (key, value))
+
+                    condition.append(u'(%s)' % ' or '.join(orCondition))
+
+                # and
+                if queryCondition.get('and'):
+                    ands = queryCondition.get('and')
+
+                    if type(ands) != type([]):
+                        ands = [ands]
+
+                    andCondition = []
+                    for __and___ in ands:
+                        for key, value in __and___.items():
+                            if key == 'or':
+                                andOrCondition = []
+
+                                for val in value:
+                                    for __key__, __value__ in val.items():
+                                        if __value__ == 'is null':
+                                            andOrCondition.append(u'`%s` is null' % (__key__))
+                                        else:
+                                            andOrCondition.append(u'`%s` = \'%s\'' % (__key__, __value__))
+
+                                    andCondition.append(u'(%s)' % ' or '.join(andOrCondition))
+                            elif key == 'orLike':
+                                andOrLikeCondition = []
+
+                                for val in value:
+                                    for __key__, __value__ in val.items():
+                                        andOrLikeCondition.append(u'`%s` like \'%%%s%%\'' % (__key__, __value__))
+
+                                    andCondition.append(u'(%s)' % ' or '.join(andOrLikeCondition))
+                            else:
+                                andCondition.append(u'`%s` = \'%s\'' % (key, value))
+
+                    condition.append(u'(%s)' % ' and '.join(andCondition))
+                #쿼리 조건절 종료
+
+                # 기본 쿼리 실행
+                query = u'SELECT DISTINCT * FROM %s' % self.TABLE_NAME
+
+                if queryCondition.get('query'):
+                    query = queryCondition.get('query')
+
+                if len(condition) > 0:
+                    query += u' WHERE %s' % u' and '.join(condition)
+
+                # limit
+                if queryCondition.get('limit'):
+                    limit = queryCondition['limit']
+                    query += u' LIMIT %s, %s' % (limit[0], limit[1])
+
+                if queryCondition.get('option'):
+                    if queryCondition['option'].get('calcurateCount') == True:
+                        calcurateCount = True
+
+                if calcurateCount:
+                    (queryResult, total) = yield from daoClass.execute(query, calcurateCount=calcurateCount)
+                else:
+                    queryResult = yield from daoClass.execute(query)
+
+                result = {
+                    'isSucceed' : True,
+                    'list' : queryResult
+                }
+
+                if calcurateCount == True :
+                    result['total'] = total
+
             self.response['result'] = result
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()

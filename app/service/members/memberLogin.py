@@ -45,8 +45,6 @@ class MemberLoginClass():
             memberPassword = requestDict.get("conditions").get("userPassword")
             memberID = ""
 
-            query = "SELECT MM_USER_PASSWORD,MM_ID FROM ML_MEMBER WHERE MM_USER_EMAIL = '%s'" % memberEmail
-
             queryCondition = {
                 "method":"read_light",
                 "conditions":
@@ -54,7 +52,11 @@ class MemberLoginClass():
                         "MM_USER_PASSWORD" : memberPassword,
                         "MM_USER_EMAIL": memberEmail
                     },
-                "query":query
+                "rows": [{
+                    "where": {
+                        "MM_USER_EMAIL": memberEmail,
+                    }
+                }]
             }
 
             list = yield from dataUserMasterClass.execute(queryCondition)
@@ -73,6 +75,7 @@ class MemberLoginClass():
 
                 memberID = retData.get("MM_ID")
                 retPass = retData.get("MM_USER_PASSWORD")
+                memberName = retData.get("MM_USER_NAME")
 
                 # 패스워드 오류
                 if memberPassword != retPass:
@@ -83,10 +86,16 @@ class MemberLoginClass():
                     }
                 # 패스워드 일치(로그인 완료)
                 else:
-                    result = list
+                    result = {
+                        "isSucceed": True,
+                        "list" : {
+                            "MM_ID": memberID,
+                            "MM_USER_NAME": memberName,
+                            "MM_USER_EMAIL": memberEmail
+                        }
+                    }
 
-                    # 정보를 뿌려준다?
-                self.response = result
+            self.response = result
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

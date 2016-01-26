@@ -57,7 +57,12 @@ class MemberGetClass():
                         "MM_ID" : memberID,
                         "MM_USER_EMAIL": userEmail
                     },
-                "query":userQuery
+                "rows": [{
+                    "where": {
+                        "MM_ID": memberID,
+                        "MM_USER_EMAIL": userEmail
+                    }
+                }]
             }
 
             userList = yield from dataUserMasterClass.execute(userQueryCondition)
@@ -70,7 +75,11 @@ class MemberGetClass():
                     {
                         "MM_ID" : memberID
                     },
-                "query":carQuery
+                "rows": [{
+                    "where": {
+                        "MM_ID": memberID
+                    }
+                }]
             }
 
             carList = yield from dataCarMasterClass.execute(carQueryCondition)

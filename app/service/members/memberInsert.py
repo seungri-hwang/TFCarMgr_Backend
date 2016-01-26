@@ -61,7 +61,11 @@ class MemberInsertClass():
 						"MM_ID" : memberID,
 						"MM_USER_EMAIL" : userEmail
 					},
-				"query": "SELECT DISTINCT * FROM ML_MEMBER WHERE MM_USER_EMAIL = '%s' " % userEmail
+				"rows": [{
+					"where": {
+						"MM_USER_EMAIL": userEmail
+					}
+				}]
 			}
 
 			dataUserMasterClassResult = yield from dataUserMasterClass.execute(queryCondition)

@@ -15,13 +15,10 @@ class DataTableDispatchClass():
         self.NOT_NULL_COLUMNS = dataTableSchema.dbSchema[self.TABLE_NAME]['NOT_NULL_COLUMNS']
         self.SELECT_KEYS = dataTableSchema.dbSchema[self.TABLE_NAME]['SELECT_KEYS']                 # 이건 이해 안감
         self.ADDTIONAL_DATA = dataTableSchema.dbSchema[self.TABLE_NAME]['ADDTIONAL_DATA']           # 이건 이해 안감
-        print("222222")
 
     @asyncio.coroutine
     def execute(self, requestDict):
         self.response = {}
-
-        print("000000")
 
         try:
             if requestDict['method'] == 'create':
@@ -109,7 +106,7 @@ class DataTableDispatchClass():
 
          self.response['result'] = result
 
-         print( self.response );
+         print(self.response)
       except:
          exc_type, exc_obj, exc_tb = sys.exc_info()
          fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -135,8 +132,6 @@ class DataTableDispatchClass():
             result = {}
             queryCondition = requestDict.get('conditions', {})
 
-            print('1111')
-
             # 필수 값 확인
             for key in self.SELECT_KEYS:
                 if not queryCondition.get(key):
@@ -144,7 +139,6 @@ class DataTableDispatchClass():
                     errorMessage = '%s is required column.' % key
                     break
 
-            print('22222')
             # 요청한 컬럼이 존재하는지 확인
             for key, value in queryCondition.items():
                 if key not in self.COLUMNS:
@@ -163,6 +157,30 @@ class DataTableDispatchClass():
 
             query = u'SELECT DISTINCT * FROM %s' % self.TABLE_NAME
 
+
+            # Where절 처리.. like, count 등등은 don't care하고 where만 일단
+            rows = requestDict.get('rows')
+            if ( 0 < len(rows) ):
+                row = rows[0]
+                if ( row.get('where') is not None ):
+                    where = row.get('where')
+                    whereQuery = ""
+                    cnt = 0
+                    for col in where:
+                        if 0 == cnt:
+                            whereQuery += "WHERE"
+                        elif 0 < cnt:
+                            whereQuery += " and "
+                        whereQuery += " %s = '%s'" % (col, where.get(col))
+                        # print("col:%s, val:%s, cnt:%s  " % (col, where.get(col), cnt))
+                        cnt = cnt + 1
+
+            query += " " + whereQuery
+
+            print('print query from dispatch read def-------------------')
+            print(query)
+
+            # 개별 query 처리를 허용
             if requestDict.get('query'):
                 query = requestDict.get('query')
 

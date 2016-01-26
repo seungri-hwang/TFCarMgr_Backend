@@ -28,10 +28,7 @@ class MemberListClass():
                 yield from self.search(requestDict)
         except:
             pass
-
         return self.response
-
-
 
     def create(self,requestDict):
         self.response = {}
@@ -40,21 +37,29 @@ class MemberListClass():
 
     def read(self, requestDict):
         self.response = {}
+        return  self.response
 
+    def update(self, requestDict):
+        self.response = {}
+        return self.response
+
+    def delete(self, requestDict):
+        self.response = {}
+        return  self.response
+
+    def search(self, requestDict):
+        self.response = {}
         try:
             dataUserMasterClass = dataTables.DataTableClass("ML_MEMBER")
-            dataCarMasterClass = dataTables.DataTableClass("VL_CAR_INFO")
-            memberID = requestDict.get('conditions').get('mmID')
-            userEmail = requestDict.get('conditions').get('userEmail')
 
-            userQuery = "SELECT * FROM ML_MEMBER"
+            query = "SELECT * FROM ML_MEMBER"
 
             userQueryCondition = {
-                "method":"read_light",
+                "method":"search",
                 "conditions":
                     {
-                    },
-                "query":userQuery
+                        "query":query
+                    }
             }
 
             list = yield from dataUserMasterClass.execute(userQueryCondition)
@@ -75,19 +80,4 @@ class MemberListClass():
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
 
-
-        return  self.response
-
-
-
-    def update(self, requestDict):
-        self.response = {}
         return self.response
-
-    def delete(self, requestDict):
-        self.response = {}
-        return  self.response
-
-    def search(self, requestDict):
-        self.response = {}
-        return  self.response

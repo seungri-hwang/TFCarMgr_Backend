@@ -33,6 +33,8 @@ class DataTableDispatchClass():
                 yield from self.search(requestDict)
             elif requestDict['method'] == 'read_light':
                 yield from self.read_light(requestDict)
+            elif requestDict['method'] == 'update_light':
+                yield from self.update_light(requestDict)
         except:
             pass
 
@@ -192,6 +194,12 @@ class DataTableDispatchClass():
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
 
+        return self.response
+
+    @asyncio.coroutine
+    def update_light(self, requestDict):
+        
+        self.response = {}
         return self.response
 
     @asyncio.coroutine

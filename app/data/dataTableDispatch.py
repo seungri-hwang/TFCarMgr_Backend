@@ -203,21 +203,6 @@ class DataTableDispatchClass():
     @asyncio.coroutine
     def update(self, requestDict):
         self.response = {}
-
-        try:
-            queryCondition = requestDict('conditions')
-            queryConditionRows = requestDict('rows')
-            service = requestDict.get('service')
-            daoClass = moduleDao.DaoClass()
-            requestUserNo = queryCondition.get('mmID')
-
-
-
-        except:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
-
         return self.response
 
     @asyncio.coroutine

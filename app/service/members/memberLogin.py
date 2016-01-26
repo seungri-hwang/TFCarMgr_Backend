@@ -11,7 +11,7 @@ class MemberLoginClass():
         self.keys = []
 
     @asyncio.coroutine
-    def exccute(self,requestDict):
+    def execute(self,requestDict):
         self.response = requestDict
         try:
             if requestDict['method'] == 'create':
@@ -84,7 +84,7 @@ class MemberLoginClass():
                         "isSucceed": False,
                         "messgae": message
                     }
-                # 패스워드 일치(로그인 완료)
+                # 패스워드 일치(로그인 완료)statusAccountsstatusAccountInsert
                 else:
                     result = {
                         "isSucceed": True,

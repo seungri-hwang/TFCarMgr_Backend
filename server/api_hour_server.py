@@ -50,6 +50,9 @@ class Container(api_hour.Container):
       self.servers['http'].router.add_route('*', '/members/memberList', self.index)
       self.servers['http'].router.add_route('*', '/members/memberLogin', self.index)
 
+      # Status Accounts
+      self.servers['http'].router.add_route('*', '/accounts/statusAccountInsert', self.index)
+
       # 차량조회
       self.servers['http'].router.add_route('*', '/vehicles/vehicleInsert', self.index)
       self.servers['http'].router.add_route('*', '/vehicles/vehicleCheckNumber', self.index)
@@ -71,6 +74,12 @@ class Container(api_hour.Container):
       # 차량누적조회
       self.servers['http'].router.add_route('*', '/statusMileages/statusMileageList', self.index)
       self.servers['http'].router.add_route('*', '/statusMileages/statusMileageInsert', self.index)
+
+
+
+
+
+
 
    # A HTTP handler example
    # More documentation: http://aiohttp.readthedocs.org/en/latest/web.html#handler

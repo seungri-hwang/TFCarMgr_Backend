@@ -120,7 +120,6 @@ class DataTableDispatchClass():
             result = {}
             queryCondition = requestDict.get('conditions', {})
 
-
             # 필수 값 확인
             for key in self.SELECT_KEYS:
                 if not queryCondition.get(key):

@@ -62,7 +62,7 @@ class Container(api_hour.Container):
       self.servers['http'].router.add_route('*', '/statusTypes/statusTypeList', self.index)
 
       # 구분조회
-      self.servers['http'].router.add_route('*', '/statusSorts/statusSortsList', self.index)
+      self.servers['http'].router.add_route('*', '/statusSorts/statusSortList', self.index)
 
       # 회원 연비계산
       self.servers['http'].router.add_route('*', '/memberEfficiencies/memberEfficiencyInsert', self.index)

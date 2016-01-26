@@ -1,4 +1,6 @@
-import sys, os
+import sys
+import os
+import datetime
 import asyncio
 from app.data import dataTables
 
@@ -7,6 +9,7 @@ class VehicleInformationClass():
 
     def __init__(self):
         self.response = {}
+        self.currentTime = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
         self.dataTableClass = dataTables.DataTableClass('VL_CAR_INFO')
 
     @asyncio.coroutine
@@ -20,7 +23,7 @@ class VehicleInformationClass():
                 yield from self.create(requestDict)
             if requestDict['method'] == 'read':
                 yield from self.read(requestDict)
-            if requestDict['method'] == 'put':
+            if requestDict['method'] == 'update':
                 yield from self.update(requestDict)
             if requestDict['method'] == 'delete':
                 yield from self.delete(requestDict)
@@ -43,17 +46,22 @@ class VehicleInformationClass():
                     'method' : 'create'
                 ,   'condition' : {
                         'rows' : [{
-                            'MM_ID' : requestDict.get('MM_ID'),
-                            'VCI_CAR_NUMBER' : requestDict.get('VCI_CAR_NUMBER'),
-                            'VCI_CAR_NAME' : requestDict.get('VCI_CAR_NAME')
+                            'MM_ID' : requestDict.get('condition').get('mmId'),
+                            'VCI_CAR_NUMBER' : requestDict.get('condition').get('carNumber'),
+                            'VCI_CAR_NAME' : requestDict.get('condition').get('carName'),
+                            'CREATE_DT' : self.currentTime,
+                            'UPDATE_DT' : self.currentTime,
+                            'DEL_YN' : 'N'
                         }]
                 }
             }
-            self.response = self.dataTableClass.execute(queryCondition)
+            self.response = yield from self.dataTableClass.execute(queryCondition)
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
+
+        return self.response
 
     @asyncio.coroutine
     def read(self, requestDict):
@@ -69,7 +77,7 @@ class VehicleInformationClass():
                         }]
                 }
             }
-            self.response = self.dataTableClass.execute(queryCondition)
+            self.response = yield from self.dataTableClass.execute(queryCondition)
         except :
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -88,15 +96,17 @@ class VehicleInformationClass():
         self.response = requestDict
         try :
             queryCondition = {
-                    'method' : 'update'
-                ,   'condition' : {
-                        'rows' : [{
-                            'VCI_ID' : requestDict.get('vciId'),
-                            'DEL_YN' : 'Y'
-                        }]
+                'method' : 'update',
+                'condition' : {
+                    'rows' : [{
+                        'equal' : {
+                            'VCI_ID' : requestDict.get('condition').get('vciId')
+                        },
+                        'DEL_YN' : 'Y'
+                    }]
                 }
             }
-            self.response = self.dataTableClass.execute(queryCondition)
+            self.response = yield from self.dataTableClass.execute(queryCondition)
         except :
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

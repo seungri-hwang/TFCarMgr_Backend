@@ -1,4 +1,6 @@
-import sys, os, datetime
+import sys
+import os
+import datetime
 import asyncio
 from app.data import dataTables
 
@@ -7,6 +9,7 @@ class StatusMileageClass():
 
     def __init__(self):
         self.response = {}
+        self.currentTime = datetime.datetime.now().strftime('%Y/%m/%d %H:%M:%S')
         self.dataTableClass = dataTables.DataTableClass('SL_STATS_MILEAGE')
 
     @asyncio.coroutine
@@ -20,7 +23,7 @@ class StatusMileageClass():
                 yield from self.create(requestDict)
             if requestDict['method'] == 'read':
                 yield from self.read(requestDict)
-            if requestDict['method'] == 'put':
+            if requestDict['method'] == 'update':
                 yield from self.update(requestDict)
             if requestDict['method'] == 'delete':
                 yield from self.delete(requestDict)
@@ -31,15 +34,35 @@ class StatusMileageClass():
 
     @asyncio.coroutine
     def search(self, requestDict):
-        self.response = requestDict
+        self.response = {}
+
         try :
+            condition = requestDict.get('condition')
+            queryWhere = ''
+
+            if condition.get('vciId') is not None or condition.get('vciId') != '' :
+                queryWhere += '''
+                    AND VCI_ID = '%s'
+                    ''' % condition.get('vciId')
+
             queryCondition = {
                 'method' : 'search',
                 'condition' : {
-                    'VCI_ID' : requestDict.get('vciId')
+                    'query' :
+                        '''
+                            SELECT  SSM_DISTANCE_NUM AS distanceNum
+                                ,   SSM_DISTANCE_CD AS distanceCd
+                            FROM    SL_STATS_MILEAGE
+                            WHERE   SSM_ID IS NOT NULL
+                            %s
+                        ''' % queryWhere
                 }
             }
-            self.response = self.dataTableClass.execute(queryCondition)
+
+            result = yield from self.dataTableClass.execute(queryCondition)
+            self.response['result'] = {
+                'list' : result
+            }
         except :
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -50,21 +73,19 @@ class StatusMileageClass():
     @asyncio.coroutine
     def create(self, requestDict):
         self.response = requestDict
-
         try:
             queryCondition = {
                 'method' : 'create',
                 'condition' : {
                     'rows' : [{
-                        'VCI_ID' : requestDict.get('vciId'),
-                        'SSM_DISTANCE_NUM' : requestDict.get('distanceNum'),
-                        'SSM_DISTANCE_CD' : requestDict.get('distanceCd'),
-                        'CREATE_DT' : datetime.datetime()
+                        'VCI_ID' : requestDict.get('condition').get('vciId'),
+                        'SSM_DISTANCE_NUM' : requestDict.get('condition').get('distanceNum'),
+                        'SSM_DISTANCE_CD' : requestDict.get('condition').get('distanceCd'),
+                        'CREATE_DT' : self.currentTime
                     }]
                 }
             }
-
-            self.response = self.dataTableClass.execute(queryCondition)
+            self.response = yield from self.dataTableClass.execute(queryCondition)
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

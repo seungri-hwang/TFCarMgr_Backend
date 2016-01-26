@@ -32,6 +32,8 @@ class DataTableDispatchClass():
                 yield from self.delete(requestDict)
             elif requestDict['method'] == 'search':
                 yield from self.search(requestDict)
+            elif requestDict['method'] == 'read_light':
+                yield from self.read_light(requestDict)
         except:
             pass
 
@@ -114,7 +116,14 @@ class DataTableDispatchClass():
       return self.response
 
     @asyncio.coroutine
-    def read(self, requestDict):
+    def read(self,requestDict):
+        self.response = requestDict
+        return self.response
+
+
+
+    @asyncio.coroutine
+    def read_light(self, requestDict):
         self.response = requestDict
         isValid = True
         errorMessage =''

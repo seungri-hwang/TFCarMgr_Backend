@@ -48,14 +48,14 @@ class MemberInsertClass():
 		try:
 			dataUserMasterClass = dataTables.DataTableClass(self.TABLE_NAME)
 			conditions = requestDict.get('conditions')
-			userEmail = conditions.get('userEmail').lower()
+			userEmail = conditions.get('userEmail')
 			userName = conditions.get('userName')
 			userPassword = conditions.get('userPassword')
 			memberID = conditions.get('mmID')
 
 			# 중복 ID CHECK
 			queryCondition = {
-				"method": "read",
+				"method": "read_light",
 				"conditions":
 					{
 						"MM_ID" : memberID,
@@ -102,31 +102,28 @@ class MemberInsertClass():
 	def read(self, requestDict):
 		self.response = {}
 
-		dataUserMasterClass = dataTables.DataTableClass(self.TABLE_NAME)
-		conditions = requestDict.get('conditions')
-		memberID = requestDict.get('userNo')
-		userEmail = conditions.get('userEmail').lower()
-
-		query = "SELECT FROM "
-
-
-		queryCondition = {
-			"method": "read",
-			"conditions":
-				{
-					"MM_ID" : memberID,
-					"MM_USER_EMAIL" : userEmail,
-					"MM_USER_NMAE" : memberID
-				},
-			"query":query
-		}
-
-
-		dataUserMasterClassResult = yield from dataUserMasterClass.execute(queryCondition)
-		userList = dataUserMasterClassResult
-
-
-
+		# dataUserMasterClass = dataTables.DataTableClass(self.TABLE_NAME)
+		# conditions = requestDict.get('conditions')
+		# memberID = requestDict.get('userNo')
+		# userEmail = conditions.get('userEmail').lower()
+        #
+		# query = "SELECT FROM "
+        #
+        #
+		# queryCondition = {
+		# 	"method": "read_light",
+		# 	"conditions":
+		# 		{
+		# 			"MM_ID" : memberID,
+		# 			"MM_USER_EMAIL" : userEmail,
+		# 			"MM_USER_NMAE" : memberID
+		# 		},
+		# 	"query":query
+		# }
+        #
+        #
+		# dataUserMasterClassResult = yield from dataUserMasterClass.execute(queryCondition)
+		# userList = dataUserMasterClassResult
 		return self.response
 
 	# read end --------------------------------------------------------------------------------------------------------------------

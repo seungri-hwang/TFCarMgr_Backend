@@ -4,13 +4,12 @@ from app.data import dataTables
 import sys, os
 
 
-class MemberGetClass():
+class MemberListClass():
     response = {}
 
     def __init__(self):
         self.response = {}
         self.keys = []
-
 
     @asyncio.coroutine
     def execute(self, requestDict):
@@ -48,62 +47,28 @@ class MemberGetClass():
             memberID = requestDict.get('conditions').get('mmID')
             userEmail = requestDict.get('conditions').get('userEmail')
 
-            userQuery = "SELECT MM_USER_NAME,MM_USER_EMAIL FROM ML_MEMBER WHERE MM_ID = '%s' and MM_USER_EMAIL='%s'" % (memberID,userEmail)
+            userQuery = "SELECT * FROM ML_MEMBER"
 
             userQueryCondition = {
                 "method":"read_light",
                 "conditions":
                     {
-                        "MM_ID" : memberID,
-                        "MM_USER_EMAIL": userEmail
                     },
                 "query":userQuery
             }
 
-            userList = yield from dataUserMasterClass.execute(userQueryCondition)
+            list = yield from dataUserMasterClass.execute(userQueryCondition)
 
-            carQuery = "SELECT VCI_ID, VCI_CAR_NUMBER, VCI_CAR_NAME FROM VL_CAR_INFO  WHERE MM_ID = '%s'" % memberID
+            print('------list')
+            print(list)
 
-            carQueryCondition = {
-                "method":"read_light",
-                "conditions":
-                    {
-                        "MM_ID" : memberID
-                    },
-                "query":carQuery
+            result = {
+                "result": {
+                    "isSucceed":True,
+                    "list":list
+                }
             }
-
-            carList = yield  from dataCarMasterClass.execute(carQueryCondition)
-
-            if 0 >= len(userList.get('result').get('list')) or 0 >= len(carList.get('result').get('list')):
-                result = {
-                    "result": {
-                        "isSucceed":False,
-                        "message":"데이터가 존재하지 않습니다"
-                    }
-                }
-                self.response = result
-
-            else:
-                uList = userList.get('result').get('list')[0]
-                cList = carList.get('result').get('list')[0]
-
-                list = {}
-
-                for key, val in uList.items():
-                    list.__setitem__(key, val)
-
-                for key, val in cList.items():
-                    list.__setitem__(key, val)
-
-
-                result = {
-                    "result": {
-                        "isSucceed":True,
-                        "list":list
-                    }
-                }
-                self.response = result
+            self.response = result
 
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()

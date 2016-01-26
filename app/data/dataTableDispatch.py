@@ -100,7 +100,7 @@ class DataTableDispatchClass():
                   }
             else:
                result = {
-                  'isSucceed' : True
+                  'isSucceed': True
                }
 
 

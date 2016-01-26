@@ -70,26 +70,24 @@ class StatusMileageClass():
     @asyncio.coroutine
     def create(self, requestDict):
         self.response = requestDict
-        '''
         try:
             queryCondition = {
                 'method' : 'create',
                 'condition' : {
                     'rows' : [{
-                        'VCI_ID' : requestDict.get('vciId'),
-                        'SSM_DISTANCE_NUM' : requestDict.get('distanceNum'),
-                        'SSM_DISTANCE_CD' : requestDict.get('distanceCd'),
-                        'CREATE_DT' : datetime.datetime()
+                        'VCI_ID' : requestDict.get('condition').get('vciId'),
+                        'SSM_DISTANCE_NUM' : requestDict.get('condition').get('distanceNum'),
+                        'SSM_DISTANCE_CD' : requestDict.get('condition').get('distanceCd'),
+                        'CREATE_DT' : "NOW()"
                     }]
                 }
             }
-
             self.response = yield from self.dataTableClass.execute(queryCondition)
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
-        '''
+
         return self.response
 
     @asyncio.coroutine

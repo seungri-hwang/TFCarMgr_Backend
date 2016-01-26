@@ -46,7 +46,7 @@ class DataTableDispatchClass():
 
         try:
             daoClass = moduleDao.DaoClass()
-            queryCondition = requestDict['conditions']
+            queryCondition = requestDict['condition']
             queryConditionRows = queryCondition.get('rows')
             isValid = len(queryConditionRows) > 0                       #추가할 데이터가 있는지 배열의 길이로 체크
             errorMessage = ''                                           #에러메세지 변수 초기화
@@ -78,12 +78,11 @@ class DataTableDispatchClass():
                     ', '.join([column for column, value in queryConditionRows[0].items()]),
                     ', '.join(['%s' for column, value in queryConditionRows[0].items()])
                     )
-                print(query)
 
                 data = []
                 for row in queryConditionRows:
                     data += [
-                        tuple([value for column, valuye in row.items()])
+                        tuple([value for column, value in row.items()])
                     ]
 
                 dictResult = yield from daoClass.executemany(query, data);
@@ -104,7 +103,9 @@ class DataTableDispatchClass():
 
                 self.response['result'] = result
         except:
-            print('[Error] >>> 에러입니다')
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
 
         return self.response
 

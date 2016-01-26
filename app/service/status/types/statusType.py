@@ -37,11 +37,18 @@ class StatusTypeClass():
             queryCondition = {
                 'method' : 'search',
                 'condition' : {
+                    'query' :
+                        '''
+                            SELECT  SST_ID AS sstId
+                                ,   SST_TYPE_NAME AS typeName
+                            FROM    SL_STATS_TYPE SST
+                            ORDER   BY  SST_ORDER_NUM
+                        '''
                 }
             }
             result = yield from self.dataTableClass.execute(queryCondition)
             self.response['result'] = {
-				'list': result
+				'list' : result
 			}
         except :
             exc_type, exc_obj, exc_tb = sys.exc_info()

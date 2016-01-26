@@ -39,7 +39,7 @@ class ControllerClass:
 				serviceResult = yield from serviceClass.execute(requestDict)
 				self.response = serviceResult
 
-			elif serviceName == 'statusSorts.statusSortsList':
+			elif serviceName == 'statusSorts.statusSortList':
 				serviceClass = statusSort.StatusSortClass()
 				serviceResult = yield from serviceClass.execute(requestDict)
 				self.response = serviceResult

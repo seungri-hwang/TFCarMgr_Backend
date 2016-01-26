@@ -37,6 +37,13 @@ class StatusSortClass():
             queryCondition = {
                 'method' : 'search',
                 'condition' : {
+                    'query' :
+                        '''
+                            SELECT  SSS_ID AS sssId
+                                ,   SSS_SORT_NAME AS sortName
+                            FROM    SL_STATS_SORT
+                            ORDER   BY  SSS_ORDER_NUM ASC
+                        '''
                 }
             }
             result = yield from self.dataTableClass.execute(queryCondition)

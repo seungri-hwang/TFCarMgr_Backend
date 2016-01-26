@@ -31,16 +31,35 @@ class StatusMileageClass():
 
     @asyncio.coroutine
     def search(self, requestDict):
-        self.response = requestDict
+        self.response = {}
 
         try :
+            condition = requestDict.get('condition')
+            queryWhere = ''
+
+            if condition.get('vciId') is not None or condition.get('vciId') != '' :
+                queryWhere += '''
+                    AND VCI_ID = '%s'
+                    ''' % condition.get('vciId')
+
             queryCondition = {
                 'method' : 'search',
                 'condition' : {
-                    'VCI_ID' : requestDict.get('vciId')
+                    'query' :
+                        '''
+                            SELECT  SSM_DISTANCE_NUM AS distanceNum
+                                ,   SSM_DISTANCE_CD AS distanceCd
+                            FROM    SL_STATS_MILEAGE
+                            WHERE   SSM_ID IS NOT NULL
+                            %s
+                        ''' % queryWhere
                 }
             }
-            self.response = yield from self.dataTableClass.execute(queryCondition)
+
+            result = yield from self.dataTableClass.execute(queryCondition)
+            self.response['result'] = {
+                'list' : result
+            }
         except :
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -51,7 +70,7 @@ class StatusMileageClass():
     @asyncio.coroutine
     def create(self, requestDict):
         self.response = requestDict
-
+        '''
         try:
             queryCondition = {
                 'method' : 'create',
@@ -70,7 +89,7 @@ class StatusMileageClass():
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
-
+        '''
         return self.response
 
     @asyncio.coroutine

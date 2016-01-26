@@ -33,11 +33,25 @@ class FuelEfficiencyClass():
     def search(self, requestDict):
         self.response = {}
         try :
+            condition = requestDict.get('condition')
+            queryWhere = ''
+
             queryCondition = {
                 'method' : 'search',
                 'condition' : {
+                    'query' :
+                        '''
+                            SELECT  CFE_ID AS cfeId
+                                ,   CFE_NAME AS name
+                                ,   CFE_EFFCIENCY_CD AS effciencyCd
+                                ,   CFE_EXPLANATION_DESC AS explanationDesc
+                            FROM    CSL_FUEL_EFFICIENCY
+                            WHERE   CFE_ID IS NOT NULL
+                            %s
+                        ''' % queryWhere
                 }
             }
+
             result = yield from self.dataTableClass.execute(queryCondition)
             self.response['result'] = {
 				'list': result

@@ -1,8 +1,10 @@
 
 # -*- coding: utf-8 -*-
 
+import io
+import os
+import sys
 import asyncio
-import sys, io
 from pymongo import MongoClient
 
 class LogClass():

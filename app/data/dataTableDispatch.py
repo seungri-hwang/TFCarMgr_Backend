@@ -57,8 +57,6 @@ class DataTableDispatchClass():
             if key not in self.COLUMNS:
                isValid = False
                errorMessage = '%s is not exists.' % key
-               print('Unknown column %s in %s' % (key, self.TABLE_NAME))
-               print("----dataTAbleDispatch: "+key)
                break
 
          if isValid == False:
@@ -85,13 +83,7 @@ class DataTableDispatchClass():
             print('')
             data = []
             for row in queryConditionRows:
-
-               data += [
-                  tuple([value for column, value in row.items()])
-               ]
-
-            print("query ----------------")
-            print(query)
+               data += [tuple([value for column, value in row.items()])]
 
             dictResult = yield from daoClass.executemany(query, data)
 
@@ -105,11 +97,7 @@ class DataTableDispatchClass():
                result = {
                   'isSucceed': True
                }
-
-
          self.response['result'] = result
-
-         print(self.response)
       except:
          exc_type, exc_obj, exc_tb = sys.exc_info()
          fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -120,7 +108,7 @@ class DataTableDispatchClass():
 
     @asyncio.coroutine
     def read(self, requestDict):
-        self.response = requestDict
+        self.response = {}
         try:
             result = {}
             queryCondition = requestDict.get('condition', {})
@@ -146,7 +134,7 @@ class DataTableDispatchClass():
                     break
 
             if isValid == False :
-                result = {
+                self.response['result'] = {
                     'isSucceed' : False,
                     'error' : {
                         'message' : errorMessage
@@ -220,15 +208,15 @@ class DataTableDispatchClass():
                                 for val in value:
                                     for __key__, __value__ in val.items():
                                         if __value__ == 'is null':
-                                            orAndCondition.append(u'`%s` is null' % (__key__))
+                                            orAndCondition.append(u'`%s` IS NULL' % (__key__))
                                         else:
                                             orAndCondition.append(u'`%s` = \'%s\'' % (__key__, __value__))
 
-                                    orCondition.append(u'(%s)' % ' and '.join(orAndCondition))
+                                    orCondition.append(u'(%s)' % ' AND '.join(orAndCondition))
                             else:
                                 orCondition.append(u'`%s` = \'%s\'' % (key, value))
 
-                    condition.append(u'(%s)' % ' or '.join(orCondition))
+                    condition.append(u'(%s)' % ' OR '.join(orCondition))
 
                 # and
                 if queryCondition.get('and'):
@@ -246,23 +234,23 @@ class DataTableDispatchClass():
                                 for val in value:
                                     for __key__, __value__ in val.items():
                                         if __value__ == 'is null':
-                                            andOrCondition.append(u'`%s` is null' % (__key__))
+                                            andOrCondition.append(u'`%s` IS NULL' % (__key__))
                                         else:
                                             andOrCondition.append(u'`%s` = \'%s\'' % (__key__, __value__))
 
-                                    andCondition.append(u'(%s)' % ' or '.join(andOrCondition))
+                                    andCondition.append(u'(%s)' % ' OR '.join(andOrCondition))
                             elif key == 'orLike':
                                 andOrLikeCondition = []
 
                                 for val in value:
                                     for __key__, __value__ in val.items():
-                                        andOrLikeCondition.append(u'`%s` like \'%%%s%%\'' % (__key__, __value__))
+                                        andOrLikeCondition.append(u'`%s` LIKE \'%%%s%%\'' % (__key__, __value__))
 
-                                    andCondition.append(u'(%s)' % ' or '.join(andOrLikeCondition))
+                                    andCondition.append(u'(%s)' % ' OR '.join(andOrLikeCondition))
                             else:
                                 andCondition.append(u'`%s` = \'%s\'' % (key, value))
 
-                    condition.append(u'(%s)' % ' and '.join(andCondition))
+                    condition.append(u'(%s)' % ' AND '.join(andCondition))
                 #쿼리 조건절 종료
 
                 # 기본 쿼리 실행
@@ -272,7 +260,7 @@ class DataTableDispatchClass():
                     query = queryCondition.get('query')
 
                 if len(condition) > 0:
-                    query += u' WHERE %s' % u' and '.join(condition)
+                    query += u' WHERE %s' % u' AND '.join(condition)
 
                 # limit
                 if queryCondition.get('limit'):
@@ -308,22 +296,20 @@ class DataTableDispatchClass():
         try:
             query = requestDict.get('condition').get('query')
             daoClass = moduleDao.DaoClass()
-            print('query -----------')
-            print(query)
             list = yield from daoClass.execute(query)
 
             if 0 >= len(list):
                 message = "존재하지 않는 테이블입니다."
                 result = {
-                    "result":False,
-                    "message":message
+                    "result" : False,
+                    "message" : message
                 }
             else:
                 message = "성공"
                 result = {
-                    "result":True,
-                    "list":list,
-                    "message":message
+                    "result" : True,
+                    "list" : list,
+                    "message" : message
                 }
             self.response = result
 
@@ -382,7 +368,6 @@ class DataTableDispatchClass():
                 dictResult['result'] = {
                     'isSucceed' : True
                 }
-
             self.response = dictResult
         except :
             exc_type, exc_obj, exc_tb = sys.exc_info()
@@ -484,13 +469,9 @@ class DataTableDispatchClass():
                         elif 0 < cnt:
                             whereQuery += " and "
                         whereQuery += " %s = '%s'" % (col, where.get(col))
-                        # print("col:%s, val:%s, cnt:%s  " % (col, where.get(col), cnt))
                         cnt = cnt + 1
 
             query += " " + whereQuery
-
-            print('print query from dispatch read def-------------------')
-            print(query)
 
             # 개별 query 처리를 허용
             if requestDict.get('query'):
@@ -501,9 +482,10 @@ class DataTableDispatchClass():
 
             # 결과값 세팅
             result = {
-               'isSucceed': True,
-               'list': queryResult
-             }
+                'isSucceed': True,
+                'list': queryResult
+            }
+
             self.response['result'] = result
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()

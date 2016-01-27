@@ -73,6 +73,7 @@ dbSchema = {
                 'SSS_ID',
                 'SST_ID',
                 'VCI_ID',
+                'MM_ID',
                 'SSCA_REG_DATE',
                 'SSCA_PRICE_NUM',
                 'SSCA_GAS_NUM',
@@ -90,6 +91,7 @@ dbSchema = {
             'NOT_NULL_COLUMNS': [
                 'SSCA_ID',
                 'SSS_ID',
+                'MM_ID',
                 'SST_ID',
                 'VCI_ID',
                 'SSCA_GAS_VOLUME_CD'

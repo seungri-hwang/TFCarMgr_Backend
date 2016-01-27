@@ -1,10 +1,9 @@
 import asyncio
 from app.data import dataTables
+import sys,os
 
-import sys, os
 
-
-class MemberListClass():
+class StatusAccountList():
     response = {}
 
     def __init__(self):
@@ -12,9 +11,8 @@ class MemberListClass():
         self.keys = []
 
     @asyncio.coroutine
-    def execute(self, requestDict):
+    def execute(self,requestDict):
         self.response = requestDict
-
         try:
             if requestDict['method'] == 'create':
                 yield from self.create(requestDict)
@@ -28,56 +26,60 @@ class MemberListClass():
                 yield from self.search(requestDict)
         except:
             pass
+
         return self.response
 
-    def create(self,requestDict):
+
+    @asyncio.coroutine
+    def create(self, requestDict):
         self.response = {}
         return self.response
 
-
+    @asyncio.coroutine
     def read(self, requestDict):
         self.response = {}
-        return  self.response
+        return self.response
 
+    @asyncio.coroutine
     def update(self, requestDict):
         self.response = {}
         return self.response
 
+    @asyncio.coroutine
     def delete(self, requestDict):
         self.response = {}
-        return  self.response
+        return self.response
 
+    @asyncio.coroutine
     def search(self, requestDict):
         self.response = {}
+
         try:
-            dataUserMasterClass = dataTables.DataTableClass("ML_MEMBER")
+            statusDataMaster = dataTables.DataTableClass("SL_STATS_CAR_ACCOUNT")
+            condition = requestDict.get("conditions")
+            mmID = condition.get("mmID")
+            startDt = condition.get("startDt")
+            endDt = condition.get("endDt")
 
-            query = "SELECT * FROM ML_MEMBER"
+            query = u"""
+                    SELECT * FROM SL_STATS_CAR_ACCOUNT
+                    WHERE (MM_ID = '%s') AND (SSCA_REG_DATE BETWEEN '%s' and '%s')
+                    """ % (mmID,startDt,endDt)
 
-            userQueryCondition = {
+            queryCondition = {
                 "method":"search",
-                "condition":
-                    {
-                        "query":query
-                    }
-            }
-
-            list = yield from dataUserMasterClass.execute(userQueryCondition)
-
-            print('------list')
-            print(list)
-
-            result = {
-                "result": {
-                    "isSucceed":True,
-                    "list":list
+                "condition": {
+                    "query":query
                 }
             }
-            self.response = result
 
+            result = yield from statusDataMaster.execute(queryCondition)
+
+            self.response = result
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
             print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
 
         return self.response
+

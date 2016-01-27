@@ -29,7 +29,6 @@ class StatusAccountInsert():
 
         return self.response
 
-
     @asyncio.coroutine
     def create(self, requestDict):
         self.response = {}
@@ -44,30 +43,13 @@ class StatusAccountInsert():
     def update(self, requestDict):
         self.response = {}
 
-        # {
-        #     "method":"update",
-        #     "conditions":
-        #     {
-        #         "sssID":"1",
-        #         "sstID":"1",
-        #         "vciID":"1",
-        #         "regDate":"2015-05-14",
-        #         "priceNum":30500,
-        #         "gasNum": 50,
-        #         "gasVolumeCd":100,
-        #         "distanceNum":4325,
-        #         "distanceCd":500,
-        #         "gasstationName":"바가지주유소",
-        #         "note": "더럽게 비쌈"
-        #     }
-        # }
-
         try:
             accountDataMasterClass = dataTables.DataTableClass("SL_STATS_CAR_ACCOUNT")
             conditions = requestDict.get('conditions')
-            sscaID = conditions.get('sscaID')
+            sstID = conditions.get('sstID')
             sssID = conditions.get('sssID')
             vciID = conditions.get('vciID')
+            mmID = conditions.get('mmID')
             regDate = conditions.get('regDate')
             priceNum = conditions.get('priceNum')
             gasNum = conditions.get('gasNum')
@@ -77,64 +59,30 @@ class StatusAccountInsert():
             gasstationName = conditions.get('gasstationName')
             note = conditions.get('note')
 
-            queryCondition = {
-                "method": "read_light",
-                "conditions": {
+            print("mmID: %s" %  mmID)
 
-                },
-                "rows":[{
-                    "where": {
-                        "SSCA_ID": sscaID
-                    }
-                }]
+            rows = {
+                "SST_ID": sstID,
+                "SSS_ID": sssID,
+                "VCI_ID": vciID,
+                "MM_ID": mmID,
+                "SSCA_REG_DATE": regDate,
+                "SSCA_PRICE_NUM": priceNum,
+                "SSCA_GAS_NUM": gasNum,
+                "SSCA_GAS_VOLUME_CD": gasVolumeCd,
+                "SSCA_DISTANCE_NUM": distanceNum,
+                "SSCA_DISTANCE_CD": distanceCd,
+                "SSCA_GASSTATION_NAME": gasstationName,
+                "SSCA_NOTE": note
             }
-
-            print('---------- rows')
-            print(queryCondition)
-            retData = yield from accountDataMasterClass.execute(queryCondition)
-            list = retData.get('result').get('list')
-
-            # update
-            if 0 < len(list):
-                print("asdfasdf")
-
-                update = {
-                    "SSCA_ID":sscaID,
-                    "SSS_ID": sssID,
-                    "VCI_ID": vciID,
-                    "SSCA_REG_DATE": regDate,
-                    "SSCA_PRICE_NUM": priceNum,
-                    "SSCA_GAS_NUM": gasNum,
-                    "SSCA_GAS_VOLUME_CD": gasVolumeCd,
-                    "SSCA_DISTANCE_NUM": distanceNum,
-                    "SSCA_DISTANCE_CD": distanceCd,
-                    "SSCA_GASSTATION_NAME": gasstationName,
-                    "SSCA_NOTE": note
+            queryCondition = {
+                "method": "create",
+                "condition": {
+                    "rows": [rows]
                 }
-
-                update['equal'] = {"SSCA_ID":sscaID}
-
-                queryCondition = {
-                    "method": "update",
-                    "conditions": {
-                    }
-                }
-
-                retData = yield from accountDataMasterClass.execute(queryCondition)
-
-                print('----------------------- update')
-                print(retData)
-
-
-            # create
-            else:
-                queryCondition = {
-
-                }
-
-
-
-
+            }
+            result = yield from accountDataMasterClass.execute(queryCondition)
+            self.response = result
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

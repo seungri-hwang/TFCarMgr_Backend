@@ -32,11 +32,6 @@ class Container(api_hour.Container):
    def __init__(self, *args, **kwargs):
       super().__init__(*args, **kwargs)
 
-      # Declare HTTP server
-
-      # print('-----init----- %s'% str(kwargs))
-      # self.loop = kwargs['loop']
-
       self.servers['http'] = aiohttp.web.Application(loop=kwargs['loop'])
       self.servers['http'].ah_container = self  # keep a reference in HTTP server to Container
 
@@ -52,6 +47,7 @@ class Container(api_hour.Container):
 
       # Status Accounts
       self.servers['http'].router.add_route('*', '/accounts/statusAccountInsert', self.index)
+      self.servers['http'].router.add_route('*', '/accounts/statusAccountList', self.index)
 
       # 차량조회
       self.servers['http'].router.add_route('*', '/vehicles/vehicleInsert', self.index)

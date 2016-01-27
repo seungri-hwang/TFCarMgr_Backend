@@ -48,10 +48,9 @@ class DataTableDispatchClass():
 
       try:
          daoClass = moduleDao.DaoClass()
-         queryCondition = requestDict['conditions']
+         queryCondition = requestDict['condition']
          queryConditionRows = queryCondition.get('rows')
          isValid = len(queryConditionRows) > 0
-         requestUserNo = queryCondition.get('mmID')
 
          errorMessage = ''
          for key, value in queryConditionRows[0].items():
@@ -91,9 +90,10 @@ class DataTableDispatchClass():
                   tuple([value for column, value in row.items()])
                ]
 
-            # print(query, data)
+            print("query ----------------")
+            print(query)
+
             dictResult = yield from daoClass.executemany(query, data)
-            #print(dictResult)
 
             if len(dictResult) > 1:
                if dictResult.get('error'):
@@ -202,7 +202,7 @@ class DataTableDispatchClass():
         self.response = {}
 
         try:
-            query = requestDict.get('conditions').get('query')
+            query = requestDict.get('condition').get('query')
             daoClass = moduleDao.DaoClass()
             print('query -----------')
             print(query)

@@ -10,7 +10,7 @@ from app.service.fuelEfficiencies import fuelEfficiency
 from app.service.status.mileages import statusMileage
 from app.service.status.sorts import statusSort
 from app.service.status.types import statusType
-from app.service.status.accounts import statusAccountsInsert
+from app.service.status.accounts import statusAccountsInsert,statusAccountList
 from app.module import moduleDao, moduleHttp
 
 
@@ -28,8 +28,6 @@ class ControllerClass:
 
         try:
             serviceName = requestDict.get('service', '')
-
-            print('serviceName = %s' % serviceName)
 
             # 멤버 조인
             if serviceName == 'members.memberInsert':
@@ -108,6 +106,12 @@ class ControllerClass:
             # 차량 주행 상황
             elif serviceName == 'accounts.statusAccountInsert':
                 serviceClass = statusAccountsInsert.StatusAccountInsert()
+                serviceResult = yield from serviceClass.execute(requestDict)
+                self.response = serviceResult
+
+            # 차량 주행 상황 리스트 가져오기
+            elif serviceName == 'accounts.statusAccountList':
+                serviceClass = statusAccountList.StatusAccountList()
                 serviceResult = yield from serviceClass.execute(requestDict)
                 self.response = serviceResult
 

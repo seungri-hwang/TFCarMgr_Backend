@@ -88,7 +88,7 @@ class MemberInsertClass():
 				rows = {"MM_ID" : memberID,"MM_USER_EMAIL" : userEmail,"MM_USER_NAME" : userName,"MM_USER_PASSWORD" : userPassword }
 				queryCondition = {
 					"method": "create",
-					"conditions": {
+					"condition": {
 						"rows": [rows]
 					}
 				}

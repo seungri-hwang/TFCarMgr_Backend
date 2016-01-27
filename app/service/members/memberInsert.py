@@ -24,6 +24,14 @@ class MemberInsertClass():
 		try:
 			if requestDict['method'] == 'create':
 				yield from self.create(requestDict)
+			if requestDict['method'] == 'read':
+				yield from self.read(requestDict)
+			if requestDict['method'] == 'update':
+				yield from self.update(requestDict)
+			if requestDict['method'] == 'delete':
+				yield from self.delete(requestDict)
+			if requestDict['method'] == 'search':
+				yield from self.search(requestDict)
 		except:
 			pass
 
@@ -40,20 +48,24 @@ class MemberInsertClass():
 		try:
 			dataUserMasterClass = dataTables.DataTableClass(self.TABLE_NAME)
 			conditions = requestDict.get('conditions')
-			userEmail = conditions.get('userEmail').lower()
+			userEmail = conditions.get('userEmail')
 			userName = conditions.get('userName')
 			userPassword = conditions.get('userPassword')
-			memberID = requestDict.get('userNo')
+			memberID = conditions.get('mmID')
 
 			# 중복 ID CHECK
 			queryCondition = {
-				"method": "read",
+				"method": "read_light",
 				"conditions":
 					{
 						"MM_ID" : memberID,
 						"MM_USER_EMAIL" : userEmail
 					},
-				"query": "SELECT DISTINCT * FROM ML_MEMBER WHERE MM_USER_EMAIL = '%s' " % userEmail
+				"rows": [{
+					"where": {
+						"MM_USER_EMAIL": userEmail
+					}
+				}]
 			}
 
 			dataUserMasterClassResult = yield from dataUserMasterClass.execute(queryCondition)
@@ -76,8 +88,8 @@ class MemberInsertClass():
 				rows = {"MM_ID" : memberID,"MM_USER_EMAIL" : userEmail,"MM_USER_NAME" : userName,"MM_USER_PASSWORD" : userPassword }
 				queryCondition = {
 					"method": "create",
-					"conditions": {
-					"rows": [rows]
+					"condition": {
+						"rows": [rows]
 					}
 				}
 				dataUserMasterResult = yield from dataUserMasterClass.execute(queryCondition)
@@ -91,15 +103,37 @@ class MemberInsertClass():
 	# create end --------------------------------------------------------------------------------------------------------------------
 
 	@asyncio.coroutine
-	def read(self):
+	def read(self, requestDict):
 		self.response = {}
 
+		# dataUserMasterClass = dataTables.DataTableClass(self.TABLE_NAME)
+		# conditions = requestDict.get('conditions')
+		# memberID = requestDict.get('userNo')
+		# userEmail = conditions.get('userEmail').lower()
+        #
+		# query = "SELECT FROM "
+        #
+        #
+		# queryCondition = {
+		# 	"method": "read_light",
+		# 	"conditions":
+		# 		{
+		# 			"MM_ID" : memberID,
+		# 			"MM_USER_EMAIL" : userEmail,
+		# 			"MM_USER_NMAE" : memberID
+		# 		},
+		# 	"query":query
+		# }
+        #
+        #
+		# dataUserMasterClassResult = yield from dataUserMasterClass.execute(queryCondition)
+		# userList = dataUserMasterClassResult
 		return self.response
 
 	# read end --------------------------------------------------------------------------------------------------------------------
 
 	@asyncio.coroutine
-	def update(self):
+	def update(self, requestDict):
 		self.response = {}
 
 		return self.response
@@ -107,7 +141,7 @@ class MemberInsertClass():
 	# update end --------------------------------------------------------------------------------------------------------------------
 
 	@asyncio.coroutine
-	def delete(self):
+	def delete(self, requestDict):
 		self.response = {}
 
 		return self.response

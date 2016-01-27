@@ -11,7 +11,6 @@ class DataTableDispatchClass():
 
     def __init__(self, tableName):
         self.response = {}
-
         self.TABLE_NAME = tableName
         self.AUTO_INCREMENT = dataTableSchema.dbSchema[self.TABLE_NAME]['AUTO_INCREMENT']
         self.COLUMNS = dataTableSchema.dbSchema[self.TABLE_NAME]['COLUMNS']
@@ -35,6 +34,8 @@ class DataTableDispatchClass():
                 yield from self.delete(requestDict)
             elif requestDict['method'] == 'search':
                 yield from self.search(requestDict)
+            elif requestDict['method'] == 'read_light':
+                yield from self.read_light(requestDict)
         except:
             pass
 
@@ -42,86 +43,106 @@ class DataTableDispatchClass():
 
     @asyncio.coroutine
     def create(self, requestDict):
-        self.response = {}
-        result = {}
+      self.response = {}
+      result = {}
 
-        try:
-            daoClass = moduleDao.DaoClass()
-            queryCondition = requestDict['condition']
-            queryConditionRows = queryCondition.get('rows')
-            isValid = len(queryConditionRows) > 0                       #추가할 데이터가 있는지 배열의 길이로 체크
-            errorMessage = ''                                           #에러메세지 변수 초기화
+      try:
+         daoClass = moduleDao.DaoClass()
+         queryCondition = requestDict['condition']
+         queryConditionRows = queryCondition.get('rows')
+         isValid = len(queryConditionRows) > 0
 
-            #Key 값 검증작업
-            for key, value in queryConditionRows[0].items():
-                if(key not in self.COLUMNS):
-                    isValid = False
-                    errorMessage = '%s is not exists.' %key
+         errorMessage = ''
+         for key, value in queryConditionRows[0].items():
+            if key not in self.COLUMNS:
+               isValid = False
+               errorMessage = '%s is not exists.' % key
+               print('Unknown column %s in %s' % (key, self.TABLE_NAME))
+               print("----dataTAbleDispatch: "+key)
+               break
 
-                    break
-
-            if isValid == False:
-                result = {
-                    'isSucceed' : False ,
-                    'error' : {
-                        'message' : errorMessage
-                    }
-                }
-            else:
-                #쿼리 생성
-                query = u"""
-                    INSERT INTO %s
-                    (%s)
-                    VALUES
-                    (%s)
-                    """ % (
-                    self.TABLE_NAME,
-                    ', '.join([column for column, value in queryConditionRows[0].items()]),
-                    ', '.join(['%s' for column, value in queryConditionRows[0].items()])
-                    )
-
-                data = []
-                for row in queryConditionRows:
-                    data += [
-                        tuple([value for column, value in row.items()])
-                    ]
-
-                dictResult = yield from daoClass.executemany(query, data);
-
-                if len(dictResult) > 1:
-                    if dictResult.get('error'):
-                        result = {
-                            'error': dictResult.get('error'),
-                            'isSucceed': False
-                        }
-                else:
-                    result = {
-                        'isSucceed' : True
-                    }
-
-                    if dictResult.get('autoIncrement'):
-                        result[self.AUTO_INCREMENT] = dictResult.get('autoIncrement')
-
+         if isValid == False:
+            # validation error
+            result = {
+               'isSucceed': False,
+               'error': {
+                  'message': errorMessage
+               }
+            }
             self.response['result'] = result
-        except:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
+         else:
 
-        return self.response
+            query = u"""
+                  INSERT INTO %s
+                  (%s)
+                  values (%s)
+               """ % (
+               self.TABLE_NAME,
+               ', '.join([column for column, value in queryConditionRows[0].items()]),
+               ', '.join(['%s' for column, value in queryConditionRows[0].items()])
+            )
+
+            print('')
+            data = []
+            for row in queryConditionRows:
+
+               data += [
+                  tuple([value for column, value in row.items()])
+               ]
+
+            print("query ----------------")
+            print(query)
+
+            dictResult = yield from daoClass.executemany(query, data)
+
+            if len(dictResult) > 1:
+               if dictResult.get('error'):
+                  result = {
+                     'error' : dictResult.get('error'),
+                     'isSucceed' : False
+                  }
+            else:
+               result = {
+                  'isSucceed': True
+               }
+
+
+         self.response['result'] = result
+
+         print(self.response)
+      except:
+         exc_type, exc_obj, exc_tb = sys.exc_info()
+         fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+         print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
+
+      return self.response
+
 
     @asyncio.coroutine
+<<<<<<< HEAD
     def read(self, requestDict):
-        self.response = {}
+        self.response = requestDict
 
         try:
-            queryCondition = requestDict.get('condition', {})
+            result = {}
+            queryCondition = requestDict.get('conditions', {})
 
             #유효성 검사 체크
             isValid = True
             errorMessage = ''
             daoClass = moduleDao.DaoClass()
             calcurateCount = False
+=======
+    def read_light(self, requestDict):
+        self.response = requestDict
+        isValid = True
+        errorMessage =''
+        daoClass = moduleDao.DaoClass()
+
+        try:
+            result = {}
+            queryCondition = requestDict.get('conditions', {})
+>>>>>>> 994bb190be45b0b953ab01944c1253165d013d13
 
             # 필수 값 확인
             for key in self.SELECT_KEYS:
@@ -144,6 +165,7 @@ class DataTableDispatchClass():
                         'message' : errorMessage
                     }
                 }
+<<<<<<< HEAD
             else :
                 #쿼리 조건절 시작
                 condition = []
@@ -266,8 +288,6 @@ class DataTableDispatchClass():
                 if len(condition) > 0:
                     query += u' WHERE %s' % u' and '.join(condition)
 
-                print(query)
-
                 # limit
                 if queryCondition.get('limit'):
                     limit = queryCondition['limit']
@@ -286,11 +306,77 @@ class DataTableDispatchClass():
                     'isSucceed' : True,
                     'list' : queryResult
                 }
+=======
+                self.response['result'] = result
+                return self.response
+
+            query = u'SELECT DISTINCT * FROM %s' % self.TABLE_NAME
+
+
+            # Where절 처리.. like, count 등등은 don't care하고 where만 일단
+            rows = requestDict.get('rows')
+            if ( 0 < len(rows) ):
+                row = rows[0]
+                if ( row.get('where') is not None ):
+                    where = row.get('where')
+                    whereQuery = ""
+                    cnt = 0
+                    for col in where:
+                        if 0 == cnt:
+                            whereQuery += "WHERE"
+                        elif 0 < cnt:
+                            whereQuery += " and "
+                        whereQuery += " %s = '%s'" % (col, where.get(col))
+                        # print("col:%s, val:%s, cnt:%s  " % (col, where.get(col), cnt))
+                        cnt = cnt + 1
+
+            query += " " + whereQuery
+
+            print('print query from dispatch read def-------------------')
+            print(query)
+
+            # 개별 query 처리를 허용
+            if requestDict.get('query'):
+                query = requestDict.get('query')
+>>>>>>> 994bb190be45b0b953ab01944c1253165d013d13
 
                 if calcurateCount == True :
                     result['total'] = total
 
             self.response['result'] = result
+        except:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
+
+        return self.response
+
+    @asyncio.coroutine
+    def search(self, requestDict):
+        self.response = {}
+
+        try:
+            query = requestDict.get('condition').get('query')
+            daoClass = moduleDao.DaoClass()
+            print('query -----------')
+            print(query)
+            list = yield from daoClass.execute(query)
+
+            if 0 >= len(list):
+                message = "존재하지 않는 테이블입니다."
+                result = {
+                    "result":False,
+                    "message":message
+                }
+            else:
+                message = "성공"
+                result = {
+                    "result":True,
+                    "list":list,
+                    "message":message
+                }
+            self.response = result
+
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
@@ -394,31 +480,4 @@ class DataTableDispatchClass():
             }
 
         self.response['result'] = result
-        return self.response
-
-    @asyncio.coroutine
-    def search(self, requestDict):
-        self.response = {}
-
-        try:
-            queryCondition = requestDict.get('condition')
-            query = queryCondition.get('query')
-
-            daoClass = moduleDao.DaoClass()
-            queryResult = yield from daoClass.execute(query)
-
-            dictResult = {
-                'result' : {
-                    'isSucceed' : True,
-                    'list' : queryResult
-                }
-            }
-
-            self.response = dictResult
-
-        except:
-            exc_type, exc_obj, exc_tb = sys.exc_info()
-            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
-            print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
-
         return self.response

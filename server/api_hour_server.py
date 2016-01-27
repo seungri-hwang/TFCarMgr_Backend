@@ -6,14 +6,15 @@ import sys, os
 
 sys.path.append('../')
 
+from app import route
 from app import controller
 from app.module import moduleDao, moduleHttp
 
 import logging
 import asyncio
-
 import api_hour
 import aiohttp.web
+
 from aiohttp.web import Response
 from aiohttp.multidict import MultiDict
 
@@ -39,6 +40,14 @@ class Container(api_hour.Container):
       self.servers['http'].router.add_route('*', '/', self.index)
       self.servers['http'].router.add_route('*', '/healthCheck', self.index)
 
+      # Routes 등록
+      routes = route.routes
+      for x in routes :
+          for v in routes[x] :
+              mappingUrl = '/'+x+'/'+v
+              self.servers['http'].router.add_route('*', mappingUrl, self.index)
+
+      '''
       # Members
       self.servers['http'].router.add_route('*', '/members/memberInsert', self.index)
       self.servers['http'].router.add_route('*', '/members/memberGet', self.index)
@@ -70,12 +79,7 @@ class Container(api_hour.Container):
       # 차량누적조회
       self.servers['http'].router.add_route('*', '/statusMileages/statusMileageList', self.index)
       self.servers['http'].router.add_route('*', '/statusMileages/statusMileageInsert', self.index)
-
-
-
-
-
-
+      '''
 
    # A HTTP handler example
    # More documentation: http://aiohttp.readthedocs.org/en/latest/web.html#handler

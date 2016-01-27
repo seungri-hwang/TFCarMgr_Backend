@@ -2,16 +2,8 @@
 <project version="4">
   <component name="ChangeListManager">
     <list default="true" id="93f35110-f0dc-46ef-bd68-c0dcba5737da" name="Default" comment="">
-      <change type="NEW" beforePath="" afterPath="$PROJECT_DIR$/app/service/status/accounts/statusAccountList.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/misc.xml" afterPath="$PROJECT_DIR$/.idea/misc.xml" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/.idea/workspace.xml" afterPath="$PROJECT_DIR$/.idea/workspace.xml" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/controller.py" afterPath="$PROJECT_DIR$/app/controller.py" />
       <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/data/dataTableDispatch.py" afterPath="$PROJECT_DIR$/app/data/dataTableDispatch.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/data/dataTableSchema.py" afterPath="$PROJECT_DIR$/app/data/dataTableSchema.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/service/members/memberInsert.py" afterPath="$PROJECT_DIR$/app/service/members/memberInsert.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/service/members/memberList.py" afterPath="$PROJECT_DIR$/app/service/members/memberList.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/app/service/status/accounts/statusAccountsInsert.py" afterPath="$PROJECT_DIR$/app/service/status/accounts/statusAccountsInsert.py" />
-      <change type="MODIFICATION" beforePath="$PROJECT_DIR$/server/api_hour_server.py" afterPath="$PROJECT_DIR$/server/api_hour_server.py" />
     </list>
     <ignored path="TFCarMgr_Backend.iws" />
     <ignored path=".idea/workspace.xml" />
@@ -44,11 +36,11 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="statusAccountList.py" pinned="false" current-in-tab="true">
+      <file leaf-file-name="statusAccountList.py" pinned="false" current-in-tab="false">
         <entry file="file://$PROJECT_DIR$/app/service/status/accounts/statusAccountList.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="0.4254446">
-              <caret line="60" column="46" selection-start-line="60" selection-start-column="46" selection-end-line="60" selection-end-column="46" />
+            <state vertical-scroll-proportion="0.0">
+              <caret line="65" column="82" selection-start-line="65" selection-start-column="82" selection-end-line="65" selection-end-column="82" />
               <folding>
                 <element signature="e#0#14#0" expanded="true" />
               </folding>
@@ -56,13 +48,35 @@
           </provider>
         </entry>
       </file>
-      <file leaf-file-name="dataTableDispatch.py" pinned="false" current-in-tab="false">
+      <file leaf-file-name="dataTableDispatch.py" pinned="false" current-in-tab="true">
         <entry file="file://$PROJECT_DIR$/app/data/dataTableDispatch.py">
           <provider selected="true" editor-type-id="text-editor">
-            <state vertical-scroll-proportion="-4.4074073">
-              <caret line="204" column="46" selection-start-line="204" selection-start-column="46" selection-end-line="204" selection-end-column="46" />
+            <state vertical-scroll-proportion="0.7443182">
+              <caret line="459" column="0" selection-start-line="459" selection-start-column="0" selection-end-line="459" selection-end-column="0" />
               <folding>
                 <element signature="e#0#9#0" expanded="true" />
+              </folding>
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="moduleHttp.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/module/moduleHttp.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+              <folding />
+            </state>
+          </provider>
+        </entry>
+      </file>
+      <file leaf-file-name="moduleDao.py" pinned="false" current-in-tab="false">
+        <entry file="file://$PROJECT_DIR$/app/module/moduleDao.py">
+          <provider selected="true" editor-type-id="text-editor">
+            <state vertical-scroll-proportion="0.0">
+              <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+              <folding>
+                <element signature="e#25#40#0" expanded="true" />
               </folding>
             </state>
           </provider>
@@ -110,10 +124,10 @@
         <option value="$PROJECT_DIR$/server/api_hour_server.py" />
         <option value="$PROJECT_DIR$/app/data/dataTableSchema.py" />
         <option value="$PROJECT_DIR$/app/service/status/accounts/statusAccountsInsert.py" />
-        <option value="$PROJECT_DIR$/app/data/dataTableDispatch.py" />
         <option value="$PROJECT_DIR$/app/service/members/memberList.py" />
         <option value="$PROJECT_DIR$/app/controller.py" />
         <option value="$PROJECT_DIR$/app/service/status/accounts/statusAccountList.py" />
+        <option value="$PROJECT_DIR$/app/data/dataTableDispatch.py" />
       </list>
     </option>
   </component>
@@ -633,7 +647,14 @@
   </component>
   <component name="XDebuggerManager">
     <breakpoint-manager>
-      <option name="time" value="1" />
+      <breakpoints>
+        <line-breakpoint enabled="true" type="python-line">
+          <url>file://$PROJECT_DIR$/app/module/moduleDao.py</url>
+          <line>2</line>
+          <option name="timeStamp" value="1" />
+        </line-breakpoint>
+      </breakpoints>
+      <option name="time" value="2" />
     </breakpoint-manager>
     <watches-manager />
   </component>
@@ -952,16 +973,6 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/service/members/memberInsert.py">
-      <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.0">
-          <caret line="90" column="30" selection-start-line="90" selection-start-column="30" selection-end-line="90" selection-end-column="30" />
-          <folding>
-            <element signature="e#24#38#0" expanded="false" />
-          </folding>
-        </state>
-      </provider>
-    </entry>
     <entry file="file://$PROJECT_DIR$/app/service/memberEfficiencies/memberEfficiency.py">
       <provider selected="true" editor-type-id="text-editor">
         <state vertical-scroll-proportion="-0.5251397">
@@ -1014,12 +1025,12 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/data/dataTableDispatch.py">
+    <entry file="file://$PROJECT_DIR$/app/service/status/accounts/statusAccountsInsert.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-4.4074073">
-          <caret line="204" column="46" selection-start-line="204" selection-start-column="46" selection-end-line="204" selection-end-column="46" />
+        <state vertical-scroll-proportion="-14.407408">
+          <caret line="86" column="12" selection-start-line="86" selection-start-column="12" selection-end-line="88" selection-end-column="69" />
           <folding>
-            <element signature="e#0#9#0" expanded="true" />
+            <element signature="e#0#14#0" expanded="true" />
           </folding>
         </state>
       </provider>
@@ -1042,22 +1053,56 @@
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/service/status/accounts/statusAccountsInsert.py">
+    <entry file="file://$PROJECT_DIR$/app/module/moduleHttp.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="-14.407408">
-          <caret line="86" column="12" selection-start-line="86" selection-start-column="12" selection-end-line="88" selection-end-column="69" />
+        <state vertical-scroll-proportion="0.0">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file:///Library/Frameworks/Python.framework/Versions/3.5/lib/python3.5/traceback.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="-0.16415869">
+          <caret line="0" column="0" selection-start-line="0" selection-start-column="0" selection-end-line="0" selection-end-column="0" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/module/moduleDao.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="18" column="0" selection-start-line="18" selection-start-column="0" selection-end-line="18" selection-end-column="0" />
+          <folding>
+            <element signature="e#25#40#0" expanded="true" />
+          </folding>
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/service/members/memberInsert.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.020519836">
+          <caret line="90" column="30" selection-start-line="90" selection-start-column="30" selection-end-line="90" selection-end-column="30" />
+          <folding />
+        </state>
+      </provider>
+    </entry>
+    <entry file="file://$PROJECT_DIR$/app/service/status/accounts/statusAccountList.py">
+      <provider selected="true" editor-type-id="text-editor">
+        <state vertical-scroll-proportion="0.0">
+          <caret line="65" column="82" selection-start-line="65" selection-start-column="82" selection-end-line="65" selection-end-column="82" />
           <folding>
             <element signature="e#0#14#0" expanded="true" />
           </folding>
         </state>
       </provider>
     </entry>
-    <entry file="file://$PROJECT_DIR$/app/service/status/accounts/statusAccountList.py">
+    <entry file="file://$PROJECT_DIR$/app/data/dataTableDispatch.py">
       <provider selected="true" editor-type-id="text-editor">
-        <state vertical-scroll-proportion="0.4254446">
-          <caret line="60" column="46" selection-start-line="60" selection-start-column="46" selection-end-line="60" selection-end-column="46" />
+        <state vertical-scroll-proportion="0.7443182">
+          <caret line="459" column="0" selection-start-line="459" selection-start-column="0" selection-end-line="459" selection-end-column="0" />
           <folding>
-            <element signature="e#0#14#0" expanded="true" />
+            <element signature="e#0#9#0" expanded="true" />
           </folding>
         </state>
       </provider>

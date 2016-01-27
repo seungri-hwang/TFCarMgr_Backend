@@ -119,30 +119,17 @@ class DataTableDispatchClass():
 
 
     @asyncio.coroutine
-<<<<<<< HEAD
     def read(self, requestDict):
         self.response = requestDict
-
         try:
             result = {}
-            queryCondition = requestDict.get('conditions', {})
+            queryCondition = requestDict.get('condition', {})
 
             #유효성 검사 체크
             isValid = True
             errorMessage = ''
             daoClass = moduleDao.DaoClass()
             calcurateCount = False
-=======
-    def read_light(self, requestDict):
-        self.response = requestDict
-        isValid = True
-        errorMessage =''
-        daoClass = moduleDao.DaoClass()
-
-        try:
-            result = {}
-            queryCondition = requestDict.get('conditions', {})
->>>>>>> 994bb190be45b0b953ab01944c1253165d013d13
 
             # 필수 값 확인
             for key in self.SELECT_KEYS:
@@ -165,7 +152,6 @@ class DataTableDispatchClass():
                         'message' : errorMessage
                     }
                 }
-<<<<<<< HEAD
             else :
                 #쿼리 조건절 시작
                 condition = []
@@ -306,42 +292,6 @@ class DataTableDispatchClass():
                     'isSucceed' : True,
                     'list' : queryResult
                 }
-=======
-                self.response['result'] = result
-                return self.response
-
-            query = u'SELECT DISTINCT * FROM %s' % self.TABLE_NAME
-
-
-            # Where절 처리.. like, count 등등은 don't care하고 where만 일단
-            rows = requestDict.get('rows')
-            if ( 0 < len(rows) ):
-                row = rows[0]
-                if ( row.get('where') is not None ):
-                    where = row.get('where')
-                    whereQuery = ""
-                    cnt = 0
-                    for col in where:
-                        if 0 == cnt:
-                            whereQuery += "WHERE"
-                        elif 0 < cnt:
-                            whereQuery += " and "
-                        whereQuery += " %s = '%s'" % (col, where.get(col))
-                        # print("col:%s, val:%s, cnt:%s  " % (col, where.get(col), cnt))
-                        cnt = cnt + 1
-
-            query += " " + whereQuery
-
-            print('print query from dispatch read def-------------------')
-            print(query)
-
-            # 개별 query 처리를 허용
-            if requestDict.get('query'):
-                query = requestDict.get('query')
->>>>>>> 994bb190be45b0b953ab01944c1253165d013d13
-
-                if calcurateCount == True :
-                    result['total'] = total
 
             self.response['result'] = result
         except:
@@ -480,4 +430,84 @@ class DataTableDispatchClass():
             }
 
         self.response['result'] = result
+        return self.response
+
+
+    @asyncio.coroutine
+    def read_light(self, requestDict):
+        self.response = requestDict
+        isValid = True
+        errorMessage =''
+        daoClass = moduleDao.DaoClass()
+
+        try:
+            result = {}
+            queryCondition = requestDict.get('condition', {})
+
+            # 필수 값 확인
+            for key in self.SELECT_KEYS:
+                if not queryCondition.get(key):
+                    isValid = False
+                    errorMessage = '%s is required column.' % key
+                    break
+
+            # 요청한 컬럼이 존재하는지 확인
+            for key, value in queryCondition.items():
+                if key not in self.COLUMNS:
+                    isValid = False
+                    errorMessage = 'Unknown column: %s in %s' % (key, self.TABLE_NAME)
+                    break
+
+            # 필수 키 값이나 요청한 칼럼이 없다면 에러메시지 리턴 후 모듈 종료
+            if isValid == False:
+                result = {
+                    'isSucceed':False,
+                    'error':errorMessage
+                }
+                self.response['result'] = result
+                return self.response
+
+            query = u'SELECT DISTINCT * FROM %s' % self.TABLE_NAME
+
+
+            # Where절 처리.. like, count 등등은 don't care하고 where만 일단
+            rows = requestDict.get('rows')
+            if ( 0 < len(rows) ):
+                row = rows[0]
+                if ( row.get('where') is not None ):
+                    where = row.get('where')
+                    whereQuery = ""
+                    cnt = 0
+                    for col in where:
+                        if 0 == cnt:
+                            whereQuery += "WHERE"
+                        elif 0 < cnt:
+                            whereQuery += " and "
+                        whereQuery += " %s = '%s'" % (col, where.get(col))
+                        # print("col:%s, val:%s, cnt:%s  " % (col, where.get(col), cnt))
+                        cnt = cnt + 1
+
+            query += " " + whereQuery
+
+            print('print query from dispatch read def-------------------')
+            print(query)
+
+            # 개별 query 처리를 허용
+            if requestDict.get('query'):
+                query = requestDict.get('query')
+
+            # Query 실행
+            queryResult = yield from daoClass.execute(query)
+
+            # 결과값 세팅
+            result = {
+               'isSucceed': True,
+               'list': queryResult
+             }
+            self.response['result'] = result
+        except:
+            exc_type, exc_obj, exc_tb = sys.exc_info()
+            fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]
+            print('[Error] >>>> ', exc_type, fname, exc_tb.tb_lineno)
+
         return self.response

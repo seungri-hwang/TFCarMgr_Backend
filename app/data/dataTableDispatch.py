@@ -112,11 +112,10 @@ class DataTableDispatchClass():
 
     @asyncio.coroutine
     def read(self, requestDict):
-        self.response = requestDict
+        self.response = {}
 
         try:
-            result = {}
-            queryCondition = requestDict.get('conditions', {})
+            queryCondition = requestDict.get('condition', {})
 
             #유효성 검사 체크
             isValid = True
@@ -266,6 +265,8 @@ class DataTableDispatchClass():
 
                 if len(condition) > 0:
                     query += u' WHERE %s' % u' and '.join(condition)
+
+                print(query)
 
                 # limit
                 if queryCondition.get('limit'):

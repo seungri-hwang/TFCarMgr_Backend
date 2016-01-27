@@ -43,7 +43,6 @@ class MemberEfficiencyClass():
         self.response = requestDict
 
         try:
-
             queryCondition = {
                 'method' : 'create',
                 'condition' : {
@@ -68,13 +67,16 @@ class MemberEfficiencyClass():
         self.response = {}
 
         try:
+            query = {}
+            condition = requestDict.get('condition')
+
+            if condition.get('mmId') is not None and condition.get('mmId') != '':
+                query['MM_ID'] = condition.get('mmId')
+
             queryCondition = {
                 'method' : 'read',
-                'condition' : {
-                    'mmId' : requestDict.get('mmId')
-                }
+                'condition' : query
             }
-
             self.response = yield from self.dataTableClass.execute(queryCondition)
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()

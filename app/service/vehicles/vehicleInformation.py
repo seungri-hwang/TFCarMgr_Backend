@@ -41,6 +41,7 @@ class VehicleInformationClass():
     @asyncio.coroutine
     def create(self, requestDict):
         self.response = requestDict
+
         try:
             queryCondition = {
                     'method' : 'create'
@@ -65,17 +66,24 @@ class VehicleInformationClass():
 
     @asyncio.coroutine
     def read(self, requestDict):
-        self.response = requestDict
+        self.response = {}
+
         try :
+            query = {}
+            condition = requestDict.get('condition')
+
+            if condition.get('carNumber') is not None and condition.get('carNumber') != '':
+                query['VCI_CAR_NUMBER'] = condition.get('carNumber')
+
+            if condition.get('vciId') is not None and condition.get('vciId') != '':
+                query['VCI_ID'] = condition.get('vciId')
+
+            if condition.get('mmId') is not None and condition.get('mmId') != '':
+                query['MM_ID'] = condition.get('mmId')
+
             queryCondition = {
-                    'method' : 'read'
-                ,   'condition' : {
-                        'rows' : [{
-                            'VCI_CAR_NUMBER' : requestDict.get('carNumber'),
-                            'VCI_ID' : requestDict.get('vciId'),
-                            'MM_ID' : requestDict.get('mmId')
-                        }]
-                }
+                'method' : 'read',
+                'condition' : query
             }
             self.response = yield from self.dataTableClass.execute(queryCondition)
         except :

@@ -40,23 +40,48 @@ class VehicleInformationClass():
 
     @asyncio.coroutine
     def create(self, requestDict):
-        self.response = requestDict
+        self.response = {}
 
         try:
+            result = {}
+            condition = requestDict.get('condition')
+
+            #자동차 번호 화인
             queryCondition = {
-                    'method' : 'create'
-                ,   'condition' : {
-                        'rows' : [{
-                            'MM_ID' : requestDict.get('condition').get('mmId'),
-                            'VCI_CAR_NUMBER' : requestDict.get('condition').get('carNumber'),
-                            'VCI_CAR_NAME' : requestDict.get('condition').get('carName'),
-                            'CREATE_DT' : self.currentTime,
-                            'UPDATE_DT' : self.currentTime,
-                            'DEL_YN' : 'N'
-                        }]
+                'method' : 'read',
+                'condition' : {
+                    'VCI_CAR_NUMBER' : condition.get('carNumber')
                 }
             }
-            self.response = yield from self.dataTableClass.execute(queryCondition)
+            readResult = yield from self.dataTableClass.execute(queryCondition)
+
+            if readResult['result']['isSucceed'] :
+                if len(readResult['result']['list']) == 0 :
+                    queryCondition = {
+                        'method' : 'create',
+                        'condition' : {
+                            'rows' : [{
+                                'MM_ID' : condition.get('mmId'),
+                                'VCI_CAR_NUMBER' : condition.get('carNumber'),
+                                'VCI_CAR_NAME' : condition.get('carName'),
+                                'CREATE_DT' : self.currentTime,
+                                'UPDATE_DT' : self.currentTime,
+                                'DEL_YN' : 'N'
+                            }]
+                        }
+                    }
+                    result = yield from self.dataTableClass.execute(queryCondition)
+                else :
+                    result = {
+                        'error' : '중복된 자동차 번호가 존재합니다',
+                        'isSucceed' : False
+                    }
+            else :
+                result = {
+                    'error' : '중복된 자동차 번호가 존재합니다',
+                    'isSucceed' : False
+                }
+            self.response = result
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

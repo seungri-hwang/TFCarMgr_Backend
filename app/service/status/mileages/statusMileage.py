@@ -74,18 +74,21 @@ class StatusMileageClass():
     def create(self, requestDict):
         self.response = requestDict
         try:
+            result = {}
+            conditions = requestDict.get('condition')
             queryCondition = {
                 'method' : 'create',
                 'condition' : {
                     'rows' : [{
-                        'VCI_ID' : requestDict.get('condition').get('vciId'),
-                        'SSM_DISTANCE_NUM' : requestDict.get('condition').get('distanceNum'),
-                        'SSM_DISTANCE_CD' : requestDict.get('condition').get('distanceCd'),
+                        'VCI_ID' : conditions.get('vciId'),
+                        'SSM_DISTANCE_NUM' : conditions.get('distanceNum'),
+                        'SSM_DISTANCE_CD' : conditions.get('distanceCd'),
                         'CREATE_DT' : self.currentTime
                     }]
                 }
             }
-            self.response = yield from self.dataTableClass.execute(queryCondition)
+            result = yield from self.dataTableClass.execute(queryCondition)
+            self.response = result
         except:
             exc_type, exc_obj, exc_tb = sys.exc_info()
             fname = os.path.split(exc_tb.tb_frame.f_code.co_filename)[1]

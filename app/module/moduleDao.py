@@ -4,16 +4,23 @@ import aiomysql
 import asyncio
 import time
 import traceback
+from app.config import database
 
 # import pymysql
 
 class DaoClass():
+	host = database.database.get('host')
+	user = database.database.get('user')
+	password = database.database.get('password')
+	db = database.database.get('db')
+	'''
 	# host = 'db.travelhow.com'
 	host = 'devdb.travelhow.com'
 
 	user = 'travelhow'
 	password = 'port8812!!#'
 	db = 'TFCarMgr'
+	'''
 
 	connection = None
 

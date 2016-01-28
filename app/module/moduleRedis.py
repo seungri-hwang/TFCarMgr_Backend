@@ -1,17 +1,22 @@
 import sys, os
 import asyncio
 # import asyncio_redis
+
 import aioredis
 import traceback
-
+from app.config import redis
 
 class RedisClass():
-	host = '127.0.0.1'
+	host = redis.redis.get('host')
+	port = redis.redis.get('port')
+	poolsize = redis.redis.get('poolsize')
+	connection = redis.redis.get('connection')
+	'''
 	# host = 'redis.travelhow.com'
 	port = 6379
 	poolsize = 100
 	connection = None
-
+	'''
 	def __init__(self):
 		self.tempStoage = {}  # 임시 저장소: 한 클래스내에서 동일한 키 값을 재 조회 되지 않도록 조회한 데이터를 임시로 저장한다.
 

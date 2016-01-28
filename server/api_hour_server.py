@@ -2,12 +2,12 @@
 # api_hour_server.py
 #
 
-import sys, os
+import sys
 
 sys.path.append('../')
 
-from app import route
 from app import controller
+from app.config import route
 from app.module import moduleDao, moduleHttp
 
 import logging
